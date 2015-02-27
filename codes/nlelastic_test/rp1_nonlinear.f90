@@ -1,5 +1,5 @@
 ! =====================================================
-subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
+subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
 ! =====================================================
 
 ! Riemann solver for elastic waves.
@@ -31,7 +31,7 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 
     implicit double precision (a-h,o-z)
 
-    dimension wave(meqn, mwaves, 1-mbc:maxm+mbc)
+    dimension fwave(meqn, mwaves, 1-mbc:maxm+mbc)
     dimension    s(mwaves,1-mbc:maxm+mbc)
     dimension   ql(meqn, 1-mbc:maxm+mbc)
     dimension   qr(meqn, 1-mbc:maxm+mbc)
@@ -62,10 +62,12 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 
 	rhoi = rho(xcell)
 	rhoim = rho(xcellm)
-	epsi = ql(1,i)
+	epsi = ql(1,i)		!# something wrong with epsi value
 	epsim = qr(1,i-1)
 	urhoi = ql(2,i)
 	urhoim = qr(2,i-1)
+
+!	print *, epsi
 
 !       # compute wave speeds
 
@@ -73,39 +75,44 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 	bulkim = sigmap(epsim,xcellm)
 	ci = dsqrt(bulki / rhoi)
 	cim = dsqrt(bulkim / rhoim)	
+
  
 !       # compute eigenvector compunents
 	zi = rhoi*ci
 	zim = rhoim*cim
+!	print *, zi, epsi, urhoi
 
 !	# decompose flux difference
 	dq1 = urhoim/rhoim - urhoi/rhoi
-	dq2 = sigma(epsim,xcell) - sigma(epsi,xcellm)
+	dq2 = sigma(epsim,xcellm) - sigma(epsi,xcell)
 	a1 = (zi*dq1 + dq2) / (zi + zim)
 	a2 = (zim*dq1 - dq2) / (zi + zim)
 
+!	print *, urhoim, urhoi
+
 !       # compute fwaves
 
-	wave(1,1,i) = a1
-	wave(2,1,i) = a1*zim
+	fwave(1,1,i) = a1
+	fwave(2,1,i) = a1*zim
 	s(1,i) = -cim
 
-	wave(1,2,i) = a2
-	wave(2,2,i) = -a2*zi
+	fwave(1,2,i) = a2
+	fwave(2,2,i) = -a2*zi
 	s(2,i) = ci
 	
     
     20 END DO
 
-
+!     print *, s(1,10), fwave(1,1,1), fwave(1,2,1)	!# check boundary data
 !     # compute the leftgoing and rightgoing flux differences:
 !     # Note s(1,i) < 0   and   s(2,i) > 0.
 
     do 220 m=1,meqn
         do 220 i = 2-mbc, mx+mbc
-            amdq(m,i) = wave(m,1,i)
-            apdq(m,i) = wave(m,2,i)
+            amdq(m,i) = fwave(m,1,i)
+            apdq(m,i) = fwave(m,2,i)
     220 END DO
+!      print *, amdq(1,1), apdq(1,1)	!# check wave
 
     return
     end subroutine rp1
@@ -119,21 +126,20 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 !     # density in ith cell
 
 !	# spacially varying case (not ready)        
-!	pi = 4.d0 * datan(1.d0)  !# = pi
-!	xi = 
-!        rho = 2.d0 - dsin(pi*xi)
+	pi = 4.d0 * datan(1.d0)  !# = pi
+        rho = 2.d0 - dsin(pi*xcell)
 
 !	# alternating layer case
-	ix = floor(xcell)
-	xfrac = xcell - ix
-	if (xfrac .lt. 0.5d0) then
+!	ix = floor(xcell)
+!	xfrac = xcell - ix
+!	if (xfrac .lt. 0.5d0) then
 !	    # layer A:
-	    rho = 4.d0
+!	    rho = 4.d0
 !	    rho = 1.d0	!# for test
-	else
+!	else
 !	    # layer B:
-	    rho = 1.d0
-	endif
+!	    rho = 1.d0
+!	endif
 
 !	# constant case
 !	rho = 1.d0
@@ -150,21 +156,21 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 !     # stress-strain relation in ith cell
  
 !	# spacially varying case (not ready)          
-!	pi = 4.d0 * datan(1.d0)  !# = pi
-!	xi = 
-!        sigma = eps*(2-dsin(pi*xi)) + 0.3d0*(eps*(2-dsin(pi*xi)))**2 
+	pi = 4.d0 * datan(1.d0)  !# = pi
+
+        sigma = eps*(2-dsin(pi*xcell)) + 0.3d0*(eps*(2-dsin(pi*xcell)))**2 
 
 !	# alternating layer case
-	ix = floor(xcell)
-	xfrac = xcell - ix
-	if (xfrac .lt. 0.5d0) then
+!	ix = floor(xcell)
+!	xfrac = xcell - ix
+!	if (xfrac .lt. 0.5d0) then
 !	    # layer A:
-	    sigma = 0.25d0 * eps
+!	    sigma = 0.25d0 * eps
 !	    sigma = 1.d0 * eps	!# for test
-	else
+!	else
 !	    # layer B:
-	    sigma = 1.d0 * eps
-	endif
+!	    sigma = 1.d0 * eps
+!	endif
 
 !	# constant case
 !	sigma = 1.d0*eps
@@ -180,21 +186,21 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,wave,s,amdq,apdq)
 !     # derivative of stress-strain relation in ith cell
 
 !	# spacially varying case (not ready) 	
-!	pi = 4.d0*datan(1.d0)  !# = pi
-!	xi = 
-!        sigmap = -eps*pi*dcos(pi*xi) - 0.6d0*eps*(2-dsin(pi*xi))*pi*dcos(pi*xi)
+	pi = 4.d0*datan(1.d0)  !# = pi
+ 
+        sigmap = (2-dsin(pi*xcell)) + 0.6d0*eps*(2.d0-dsin(pi*xcell))**2
 
 !	# alternating layer case
-	ix = floor(xcell)
-	xfrac = xcell - ix
-	if (xfrac .lt. 0.5d0) then
+!	ix = floor(xcell)
+!	xfrac = xcell - ix
+!	if (xfrac .lt. 0.5d0) then
 !	    # layer A:
-	    sigmap = 0.25d0
+!	    sigmap = 0.25d0
 !	    sigmap = 1.d0	!# for test
-	else
+!	else
 !	    # layer B:
-	    sigmap = 1.d0 
-	endif
+!	    sigmap = 1.d0 
+!	endif
 
 !	# constant case
 !	sigmap = 1.d0

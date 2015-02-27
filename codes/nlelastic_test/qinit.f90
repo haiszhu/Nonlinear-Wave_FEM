@@ -19,7 +19,8 @@ subroutine qinit(meqn,mbc,mx,xlower,dx,q,maux,aux)
     beta = 100.d0
       do i=1,mx
          xcell = xlower + (i-0.5d0)*dx
-         q(1,i) = 0.d0 + 0.9d0*dexp(-0.01d0*beta * (xcell-25.d0)**2)  
+         !q(1,i) = 0.d0 + 0.9d0*dexp(-0.01d0*beta * (xcell-25.d0)**2)  
+	 q(1,i) = 0.d0
          q(2,i) = 0.d0
       enddo
 

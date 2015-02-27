@@ -28,13 +28,13 @@ def setplot(plotdata):
     plotaxes = plotfigure.new_plotaxes()
     plotaxes.axescmd = 'subplot(2,1,1)'   # top figure
     plotaxes.xlimits = 'auto'
-    plotaxes.ylimits = [0,2]
+    plotaxes.ylimits = 'auto'#[-0.1,2]
     plotaxes.title = 'Strain'
 
     # Set up for item on these axes:
     plotitem = plotaxes.new_plotitem(plot_type='1d_plot')
     plotitem.plot_var = 0
-    plotitem.plotstyle = '-o'
+    plotitem.plotstyle = '-'
     plotitem.color = 'b'
 
 
@@ -44,13 +44,13 @@ def setplot(plotdata):
     plotaxes = plotfigure.new_plotaxes()
     plotaxes.axescmd = 'subplot(2,1,2)'   # bottom figure
     plotaxes.xlimits = 'auto'
-    plotaxes.ylimits = [-.5,1.1]
+    plotaxes.ylimits = 'auto'#[-.5,1.1]
     plotaxes.title = 'Momentum'
 
     # Set up for item on these axes:
     plotitem = plotaxes.new_plotitem(plot_type='1d_plot')
     plotitem.plot_var = 1
-    plotitem.plotstyle = '-o'
+    plotitem.plotstyle = '-'
     plotitem.color = 'b'
 
     # Parameters used only when creating html and/or latex hardcopy

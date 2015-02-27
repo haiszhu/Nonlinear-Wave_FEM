@@ -36,8 +36,20 @@ c-------------------------------------------------------
 c
   100 continue
 c     # user-specified boundary conditions go here in place of error output
-      write(6,*) '*** ERROR *** mthbc(1)=0 and no BCs specified in bc1'
-      stop
+c      write(6,*) '*** ERROR *** mthbc(1)=0 and no BCs specified in bc1'
+c      stop
+      do ibc=1,mbc
+          q(1,1-ibc) = q(1,1)
+          if (t .le. 60.d0) then
+	    pi = 4.d0*datan(1.d0)  !# = pi
+            q(2,1-ibc) = -2.d0 /10.d0 *(1.d0 + dcos(pi/30.d0*(t-30.d0)))
+            q(2,1-ibc) = q(2,1-ibc) * 2.d0	
+          else
+            q(2,1-ibc) = 0.d0
+         endif
+!	print *, q(2,1-ibc), 2.d0     
+
+      end do
       go to 199
 c
   110 continue

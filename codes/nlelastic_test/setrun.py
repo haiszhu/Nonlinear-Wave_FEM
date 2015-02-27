@@ -49,12 +49,12 @@ def setrun(claw_pkg='classic'):
     
     # Lower and upper edge of computational domain:
     clawdata.lower[0] = 0.000000e+00          # xlower
-    clawdata.upper[0] = 50.000000e+00          # xupper
+    clawdata.upper[0] = 3.000000e+02          # xupper
     
     # Number of grid cells:
-    clawdata.num_cells[0] = 1000      # mx
-    clawdatadx = (50.000000e+00 - 0.000000e+00)/5000
-    
+    clawdata.num_cells[0] = 5000      # mx
+    clawdatadx = (3.000000e+02 - 0.000000e+00)/5000
+     
     #------------------------------------------------------------------
     # Problem-specific domain to be written to setprob.data:
     #------------------------------------------------------------------
@@ -104,13 +104,13 @@ def setrun(claw_pkg='classic'):
     # Specify at what times the results should be written to fort.q files.
     # Note that the time integration stops after the final output time.
  
-    clawdata.output_style = 1
+    clawdata.output_style = 1	 
  
     if clawdata.output_style==1:
         # Output ntimes frames at equally spaced times up to tfinal:
         # Can specify num_output_times = 0 for no output
         clawdata.num_output_times = 20
-        clawdata.tfinal = 20
+        clawdata.tfinal = 2.400000e+02
         clawdata.output_t0 = True  # output at initial (or restart) time?
         
     elif clawdata.output_style == 2:
@@ -120,8 +120,8 @@ def setrun(claw_pkg='classic'):
  
     elif clawdata.output_style == 3:
         # Output every step_interval timesteps over total_steps timesteps:
-        clawdata.output_step_interval = 2
-        clawdata.total_steps = 4
+        clawdata.output_step_interval = 1
+        clawdata.total_steps = 3
         clawdata.output_t0 = True  # output at initial (or restart) time?
         
 
@@ -186,7 +186,7 @@ def setrun(claw_pkg='classic'):
     #   2 or 'superbee' ==> superbee
     #   3 or 'vanleer'  ==> van Leer
     #   4 or 'mc'       ==> MC limiter
-    clawdata.limiter = ['minmod', 'minmod']
+    clawdata.limiter = ['mc', 'mc']
     
     clawdata.use_fwaves = True    # True ==> use f-wave version of algorithms
     
@@ -210,7 +210,7 @@ def setrun(claw_pkg='classic'):
     #   2 or 'periodic' => periodic (must specify this at both boundaries)
     #   3 or 'wall'     => solid wall for systems where q(2) is normal velocity
     
-    clawdata.bc_lower[0] = 'extrap'   # at xlower
+    clawdata.bc_lower[0] = 'user'   # at xlower
     clawdata.bc_upper[0] = 'extrap'   # at xupper
                   
     return rundata
