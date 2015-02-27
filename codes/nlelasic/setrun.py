@@ -55,10 +55,10 @@ def setrun(claw_pkg='classic'):
     
     # Lower and upper edge of computational domain:
     clawdata.lower[0] = 0.000000e+00          # xlower
-    clawdata.upper[0] = 2*3.14 #1.000000e+01          # xupper
+    clawdata.upper[0] = 3.000000e+02          # xupper
     
     # Number of grid cells:
-    clawdata.num_cells[0] = 100      # mx
+    clawdata.num_cells[0] = 5000      # mx
     
 
     # ---------------
@@ -105,8 +105,8 @@ def setrun(claw_pkg='classic'):
     if clawdata.output_style==1:
         # Output ntimes frames at equally spaced times up to tfinal:
         # Can specify num_output_times = 0 for no output
-        clawdata.num_output_times = 30
-        clawdata.tfinal = 1.00000e+01
+        clawdata.num_output_times = 20
+        clawdata.tfinal = 2.400000e+02
         clawdata.output_t0 = True  # output at initial (or restart) time?
         
     elif clawdata.output_style == 2:
@@ -135,7 +135,7 @@ def setrun(claw_pkg='classic'):
     # The current t, dt, and cfl will be printed every time step
     # at AMR levels <= verbosity.  Set verbosity = 0 for no printing.
     #   (E.g. verbosity == 2 means print only on levels 1 and 2.)
-    clawdata.verbosity = 1
+    clawdata.verbosity = 0
     
     
 
@@ -206,7 +206,7 @@ def setrun(claw_pkg='classic'):
     #   2 or 'periodic' => periodic (must specify this at both boundaries)
     #   3 or 'wall'     => solid wall for systems where q(2) is normal velocity
     
-    clawdata.bc_lower[0] = 'extrap'   # at xlower
+    clawdata.bc_lower[0] = 'user'   # at xlower
     clawdata.bc_upper[0] = 'extrap'   # at xupper
                   
     return rundata

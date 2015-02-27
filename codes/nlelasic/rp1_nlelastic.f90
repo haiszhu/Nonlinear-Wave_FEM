@@ -64,19 +64,19 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
         
         C(i)=sqrt(1+0.6*ql(1,i)*auxl(1,i))
         Z(i)=C(i)*auxl(1,i)
+!        write(*,*) (Z(i))
         
         10 END DO
         
         do 20 i = 2-mbc, mx+mbc
         
         fluxl(1,i) = -ql(2,i)/auxl(1,i)
-!	write(*,*) (ql(2,i))
-        fluxl(2,i)   = -(ql(1,i)*auxl(1,i))-0.3*(ql(1,i)*auxl(1,i))**2
+	fluxl(2,i)   = -(ql(1,i)*auxl(1,i))-0.3*(ql(1,i)*auxl(1,i))**2
         fluxr(1,i-1) = -qr(2,i-1)/auxr(1,i-1)
         fluxr(2,i-1) = -(qr(1,i-1)*auxr(1,i-1))-0.3*(qr(1,i-1)*auxr(1,i-1))**2
         
-        delta(1) = fluxl(1,i) - fluxr(1,i-1)
-        delta(2) = fluxl(2,i) - fluxr(2,i-1)
+        delta(1) = (fluxl(1,i) - fluxr(1,i-1))
+        delta(2) = (fluxl(2,i) - fluxr(2,i-1))
 
 	a1= (delta(2)+Z(i)*delta(1))/(Z(i-1)+Z(i))
 
