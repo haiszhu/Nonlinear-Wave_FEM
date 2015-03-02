@@ -85,12 +85,12 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
     !        # Compute the waves.
     
         fwave(1,1,i) = a1*1
-        fwave(2,1,i) = a1*Z(i)
+        fwave(2,1,i) = a1*Z(i-1)
         s(1,i) = -C(i-1)
 
     
         fwave(1,2,i) = a2*1
-        fwave(2,2,i) = a2*(-Z(i-1))
+        fwave(2,2,i) = a2*(-Z(i))
         s(2,i) = C(i)
     
     20 END DO
