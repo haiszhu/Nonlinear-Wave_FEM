@@ -40,9 +40,9 @@ c      write(6,*) '*** ERROR *** mthbc(1)=0 and no BCs specified in bc1'
 c      stop
       do ibc=0,mbc
           q(1,1-ibc) = q(1,1)
-          if (t.lt.60d0) then
+          if (t.lt.20d0) then
 c            write(*,*) aux(1,1-ibc)
-            q(2,1-ibc) = -2d0 /10d0 *(1+cos(3.14156265/30d0*(t-30)))
+            q(2,1-ibc) = -1d0 /10d0 *(1+cos(3.14156265/10d0*(t-10)))
             q(2,1-ibc) = q(2,1-ibc) * aux(1,1-ibc)	
           else
             q(2,1-ibc) = 0

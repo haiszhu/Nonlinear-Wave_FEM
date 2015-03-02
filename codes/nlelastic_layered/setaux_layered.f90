@@ -19,11 +19,11 @@ subroutine setaux(mbc,mx,xlower,dx,maux,aux)
     
       do i=1,mx
          xcell = xlower + (i-0.5d0)*dx
-         pos=dmod(xcell,2d0)
-         if (pos<1) then
-         	aux(1,i) = 1
+         pos=dmod(xcell,1d0)
+         if (pos<0.5) then
+         	aux(1,i) = 4
          else
-	 	aux(1,i) = 3
+	 	aux(1,i) = 1
 	 endif
       enddo
       aux(1,0)=aux(1,1)

@@ -13,6 +13,12 @@ should be able to view the plots in _plots/_PlotIndex.html.
 
 ------------------------------------------
 
+20150302 version 0.04, 
+A working layered code is updated. It generates fig.4 in
+p1546 leveque2003. Possibly 2 typos in the paper
+in p1541, uhat in eq2.8 should be negative
+in p1545, uhat is actually -0.1 
+
 20150302 version 0.03, 
 Bug fixed in riemann solver, the update of the fwave
 uses wrong eigenvector. Now the heights in the plots look the same as in the paper 

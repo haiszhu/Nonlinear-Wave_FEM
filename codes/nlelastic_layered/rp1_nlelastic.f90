@@ -2,16 +2,19 @@
 subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
 ! =====================================================
 
-! Riemann solver for the nonlinear elasticity equations in 1D.
+! Riemann solver for the nonlinear elastic equations in 1d,
+!  variable coefficients
+!   eps_t - (m/rho(x))_x = 0
+!   m_t - sigma(eps,x)_x =0
+! where eps=strain, m=rho*u=momentum
 ! f-wave is used
-
 
 ! waves:     2
 ! equations: 2
 
 ! Conserved quantities:
-!       1 pressure
-!       2 velocity
+!       1 strain
+!       2 momentum
 
 ! On input, ql contains the state vector at the left edge of each cell
 !           qr contains the state vector at the right edge of each cell
@@ -62,7 +65,10 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
         
         do 10 i = 1-mbc, mx+mbc
         
-        C(i)=sqrt(1+0.6*ql(1,i)*auxl(1,i))
+!quardratic
+!        C(i)=sqrt(1+0.6*ql(1,i)*auxl(1,i))
+!exp
+	C(i)=sqrt(exp(ql(1,i)*auxl(1,i)))
         Z(i)=C(i)*auxl(1,i)
 !        write(*,*) (Z(i))
         
@@ -71,10 +77,17 @@ subroutine rp1(maxm,meqn,mwaves,maux,mbc,mx,ql,qr,auxl,auxr,fwave,s,amdq,apdq)
         do 20 i = 2-mbc, mx+mbc
         
         fluxl(1,i) = -ql(2,i)/auxl(1,i)
-	fluxl(2,i)   = -(ql(1,i)*auxl(1,i))-0.3*(ql(1,i)*auxl(1,i))**2
-        fluxr(1,i-1) = -qr(2,i-1)/auxr(1,i-1)
-        fluxr(2,i-1) = -(qr(1,i-1)*auxr(1,i-1))-0.3*(qr(1,i-1)*auxr(1,i-1))**2
+!quadratic
+!	fluxl(2,i)   = -(ql(1,i)*auxl(1,i))-0.5*(ql(1,i)*auxl(1,i))**2
+!exp
+        fluxl(2,i)   = -(exp(ql(1,i)*auxl(1,i))-1)
         
+        fluxr(1,i-1) = -qr(2,i-1)/auxr(1,i-1)
+!quadratic
+!       fluxr(2,i-1) = -(qr(1,i-1)*auxr(1,i-1))-0.5*(qr(1,i-1)*auxr(1,i-1))**2
+!exp
+        fluxr(2,i-1) = -(exp(qr(1,i-1)*auxr(1,i-1))-1)
+                
         delta(1) = (fluxl(1,i) - fluxr(1,i-1))
         delta(2) = (fluxl(2,i) - fluxr(2,i-1))
 
