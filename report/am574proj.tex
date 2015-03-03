@@ -149,6 +149,19 @@ while
 \]
 with $s^1_{i-1/2}=-\sqrt{\frac{\sigma'_{i-1}(\epsilon_{i-1})}{\rho_{i-1}}}$
 and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to show that $ \beta^1 \neq s^1_{i-1/2} \alpha^1$. The direct consequence with the breakdown of the "Roe condition" is that the standard w-wave propagation scheme may not be conservative any more. However, it is straightforward to see that in the f-wave method, since we are decomposing $f_{i}(Q_i)-f_{i-1}(Q_{i-1})$ into waves, the flux difference will not change and be equal to the fluctuations which assembles the waves. As a result, the f-wave method allows the schemes to be conservative even if the "Roe condition" is not satisfied and it provides us more flexibility in choosing approximate Riemann solvers.
+\subsection{Discretization of Flux Function}
+	For spatially varying flux function, flux function $f(q,x)$ can be discretized with respect to $x$ in some manner consistent with a finite-volume interpretation. In this project, we are considering cell-centered flux functions $f_i(q)$ which holds throughout the $i$th cell. For sufficiently smooth $f$, this flux function might be defined simply by $f_i(q)=f(q,x_i)$. When cell-centered flux functions are used, the generalized Riemann problem at cell interface $x_{i-1/2}$ consists of the equation
+	\[
+	q_t + F_{i-1/2}(q,x)_x=0
+	\]    
+	together with the initial data, where
+	\[
+	F_{i-1/2}(q,x)=\begin{cases}f_{i-1}(q) & \text{if } x<x_{i-1/2}\\
+	f_i(q) & \text{if } x>x_{i-1/2}\end{cases}
+	\]
+	It is also natural to instead assume that $f_{i-1/2}(q)$ is specified at each cell interface. This cell-edge flux functions measure the flow between cell $i-1$ and cell $i$ which is used in flux-differencing algorithm. However, when we include high-resolution corrections, and apply flux limiter, it can be interpreted as applying the limiter functions to the waves propagation form resulting from the Riemann solutions.\\
+	
+	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems.
 \section{Computational Results}
 \begin{figure}
   \centering
