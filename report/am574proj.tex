@@ -70,7 +70,7 @@ K_B & \mbox{otherwise.}
 \end{array}
 \right.
 \end{align}
-Here $\delta$ is the period and $\alpha$ is the proportion of the first type of medium. 
+Here $\delta$ is the period and $\alpha$ is the proportion of the first type of medium.
 \end{itemize}
 In small $\epsilon$ case, Equation \eqref{exps} is approximated by Equation \eqref{quads} if $\beta=0.5$ while they are both approximated by the linear model in Equation \eqref{lins}.
 \subsection{Issues with variable coefficients equations and the idea of f-wave method}
@@ -99,11 +99,13 @@ Therefore, the change from w-wave to f-wave is simple provided the approximate R
 \item Obtain the approximate Jacobian $A_{i-1/2}$ or, alternatively, get the eigenvalues $s^p$ and eigenvectors $r^p$ of the approximate Jacobian.
 \item Decompose the flux difference to get $\beta=R^{-1}(f(Q_i)-f(Q_{i-1}))$. The p-th f-wave is then given by $\beta^p r^p$.
 \item Sum up $A^- \Delta q$ all the left-going f-wave, and $A^+ \Delta q$ all the right-going wave. In this problem, since we only have two equations and the sound speed is $\pm_c$, $A^- \Delta q$ contains the 1-f-wave and $A^+ \Delta q$ contains the 2-f-wave.
-\item If needed, $W^p=Z^p/s^p$ the w-waves can be recovered by a division. However, numerical error may occur when $s^p$ is close to zero. 
+\item If needed, $W^p=Z^p/s^p$ the w-waves can be recovered by a division. However, numerical error may occur when $s^p$ is close to zero.
 \end{enumerate}
+The f-wave approach has already been implemented in CLAWPACK. One need only return the waves as fwaves in the Riemann solver and set the flag\\
+\verb clawdata.use_fwaves = \verb True  in \verb setrun.py .
 \section{Objective}
 \begin{enumerate}
-\item Implement the f-wave method for nonlinear elastic waves in heterogeneous media. Reproduce some of the figures in \cite{bale2002} \cite{leveque2003} and \cite{ketcheson2012}.
+\item Implement the f-wave method for nonlinear elastic waves in heterogeneous media. Reproduce some of the figures in \cite{bale2002} \cite{leveque2003} and \cite{ketcheson2012}.----Almost done.
 \item Have a more comprehensive discussion of the f-wave method and problem. Mostly on the verifications of the details of the method mentioned in the paper and textbook. p. 314 $\&$ p. 333 in the textbook. Some aspects include:
     \begin{itemize}
     \item The disadvantages of using cell-edge flux functions in wave-propagation algorithm metioned in \cite[p. 957]{bale2002}
@@ -118,8 +120,35 @@ Therefore, the change from w-wave to f-wave is simple provided the approximate R
 \end{enumerate}
 The importance of the goals is decreasing in the order.
 \section{Theoretical Background}
-
-
+\subsection{Approximate Riemann Solver}
+Since we are dealing with a nonlinear system, exact solutions to the Riemann problem is usually costly, the implementation of an approximate Riemann solver is inevitable, however, it is often enough to give good approximations as we shall see later in the numerical simulations. Here we use the approximate Riemann solver introduced in \cite{leveque2003}. Instead of giving the approximate Jacobian $A_{i-1/2}$ directly, we specify the eigenvalues and eigenvectors of $A_{i-1/2}$:
+\begin{align}
+r^1_{i-1/2}=r^1_{i-1}=\left[
+                        \begin{array}{c}
+                          1 \\ Z_{i-1} \\
+                        \end{array}
+                      \right], & \,\,\, s^1_{i-1/2}=-\sqrt{\frac{\sigma'_{i-1}(\epsilon_{i-1})}{\rho_{i-1}}}\\
+r^2_{i-1/2}=r^2_{i}=\left[
+                        \begin{array}{c}
+                          1 \\ -Z_{i} \\
+                        \end{array}
+                      \right], &\,\,\, s^2_{i-1/2}=-\sqrt{\frac{\sigma'_{i}(\epsilon_{i})}{\rho_{i}}}                  
+\end{align}
+Here we are using the solution to the eigenvalue problem of the exact Jacobian but evaluating the eigenvalues and eigenvectors according to the cells where they are. This follows from the fact that there can be no transonic rarefaction waves for these equations. One issue about using this approximate Riemann solver in the standard wave propagation form is that the "Roe condition":
+\begin{align}
+A_{i-1/2}(Q_i-Q_{i-1})=f_{i}(Q_i)-f_{i-1}(Q_{i-1})
+\end{align}
+is not satisfied.
+A quick verification can be seen by checking whether $Z^1_{i-1/2}=\beta^1 r^1=s^1_{i-1/2} \alpha^1r^1=s^1_{i-1/2}W^1_{i-1/2}$. After decomposition,
+\[
+\beta^1_{i-1/2}=\frac{\sigma_i-\sigma_{i-1}+Z_i(u_i-u_{i-1})}{Z_i+Z_{i-1}}
+\]
+while
+\[
+\alpha^1_{i-1/2}=\frac{\rho_i u_i-\rho_{i-1}u_{i-1}+Z_i(\epsilon_i-\epsilon_{i-1})}{Z_i+Z_{i-1}}
+\]
+with $s^1_{i-1/2}=-\sqrt{\frac{\sigma'_{i-1}(\epsilon_{i-1})}{\rho_{i-1}}}$
+and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to show that $ \beta^1 \neq s^1_{i-1/2} \alpha^1$. The direct consequence with the breakdown of the "Roe condition" is that the standard w-wave propagation scheme may not be conservative any more. However, it is straightforward to see that in the f-wave method, since we are decomposing $f_{i}(Q_i)-f_{i-1}(Q_{i-1})$ into waves, the flux difference will not change and be equal to the fluctuations which assembles the waves. As a result, the f-wave method allows the schemes to be conservative even if the "Roe condition" is not satisfied and it provides us more flexibility in choosing approximate Riemann solvers.
 \section{Computational Results}
 \begin{figure}
   \centering
@@ -140,10 +169,14 @@ The importance of the goals is decreasing in the order.
 \begin{thebibliography}{9}
 \bibitem{bale2002}
 D. S. Bale, R. J. LeVeque, S. Mitran, and J. A. Rossmanith, SIAM J. Sci. Comput 24 (2002), 955-978.
+\bibitem{leveque2002}
+Finite Volume Methods for Nonlinear Elasticity in Heterogeneous Media
+by R. J. LeVeque, Int. J. Numer. Meth. Fluids 40 (2002), pp. 93-104.
 \bibitem{leveque2003}
 Randall J. LeVeque and Darryl H. Yong, SIAM J. Appl. Math., 63 (2003), pp. 1539-1560.
 \bibitem{ketcheson2012}
 David I Ketcheson, Randall J. LeVeque Comm. Math. Sci. 10 (2012), pp. 859-874.
+
 \end{thebibliography}
 
 \end{document}
