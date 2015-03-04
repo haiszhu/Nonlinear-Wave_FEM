@@ -6,8 +6,8 @@
 
 1                    =: num_dim             
 0.0                  =: lower               
-180.0                =: upper               
-8640                 =: num_cells           
+360.0                =: upper               
+17280                =: num_cells           
 
 2                    =: num_eqn             
 2                    =: num_waves           
@@ -17,7 +17,7 @@
 
 1                    =: output_style        
 40                   =: num_output_times    
-200.0                =: tfinal              
+400.0                =: tfinal              
 T                    =: output_t0           
 
 1                    =: output_format       
@@ -29,7 +29,7 @@ T                    =: output_aux_onlyonce
 1e+99                =: dt_max              
 1.0                  =: cfl_max             
 0.9                  =: cfl_desired         
-500                  =: steps_max           
+1500                 =: steps_max           
 
 T                    =: dt_variable         
 1                    =: order               
