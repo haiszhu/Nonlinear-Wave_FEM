@@ -161,7 +161,10 @@ and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to s
 	\]
 	It is also natural to instead assume that $f_{i-1/2}(q)$ is specified at each cell interface. This cell-edge flux functions measure the flow between cell $i-1$ and cell $i$ which is used in flux-differencing algorithm. However, when we include high-resolution corrections, and apply flux limiter, it can be interpreted as applying the limiter functions to the waves propagation form resulting from the Riemann solutions.\\
 	
-	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems.
+	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems. Nontrivial waves can arise from these points because of the jump in flux. And as a result, we need to include flow generated from these discontinuities.
+\subsection{Breakdown of F-wave Method}
+The primary advantage of the f-wave method is that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. Details to be added.
+	
 \section{Computational Results}
 \begin{figure}
   \centering
