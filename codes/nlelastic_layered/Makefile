@@ -39,6 +39,7 @@ SOURCES = \
   rp1_nlelastic.f90 \
   setaux_layered.f90 \
   bc1.f \
+  out1.f \
   $(CLAW)/classic/src/1d/b4step1.f90 \
   $(CLAW)/classic/src/1d/driver.f90 \
   $(CLAW)/classic/src/1d/claw1ez.f \
@@ -46,7 +47,6 @@ SOURCES = \
   $(CLAW)/classic/src/1d/copyq1.f \
   $(CLAW)/classic/src/1d/inlinelimiter.f90 \
   $(CLAW)/classic/src/1d/opendatafile.f \
-  $(CLAW)/classic/src/1d/out1.f \
   $(CLAW)/classic/src/1d/src1.f90 \
   $(CLAW)/classic/src/1d/step1.f90
 
