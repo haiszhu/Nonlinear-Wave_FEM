@@ -29,7 +29,8 @@ def setplot(plotdata):
     plotaxes.axescmd = 'subplot(1,1,1)'   # top figure
     plotaxes.xlimits = [0,120]
     plotaxes.ylimits = [-0.1,0.7]
-    plotaxes.title = 'strain'
+    #plotaxes.title = 'strain'
+    plotaxes.title = 'stress'
 
     def movingframe(current_data):
     	if (current_data.t>80):
@@ -39,7 +40,18 @@ def setplot(plotdata):
 
     # Set up for item on these axes:
     plotitem = plotaxes.new_plotitem(plot_type='1d_plot')
-    plotitem.plot_var = 0
+
+    # plotitem.plot_var = 0
+    def Stress(current_data):
+	from numpy import exp
+	# make sure q and K have same dimension
+        q = current_data.q
+	K = current_data.aux
+	Stress = exp(q[0,:]*K[0,:]) - 1 
+	#Stress = K[0,:]
+	return Stress
+
+    plotitem.plot_var = Stress
     plotitem.plotstyle = '-'
     plotitem.color = 'b'
 
