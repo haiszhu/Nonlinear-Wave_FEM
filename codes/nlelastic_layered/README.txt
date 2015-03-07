@@ -13,6 +13,9 @@ should be able to view the plots in _plots/_PlotIndex.html.
 
 ------------------------------------------
 
+20150307 version 0.05
+setplot.py is modified to give the solution of stress. Comment stress function, set plotitem.plot_var = 0 will give the solution of strain. Make sure also change plotaxes.title.
+
 20150303 version 0.04
 setplot.py is modified to give the solution in the moving frame
 
