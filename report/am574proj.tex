@@ -35,15 +35,15 @@
 \maketitle
 
 \section{Abstract}
-We study the f-wave method for elastic waves in heterogeneous media.
+The wave-propagation form has been shown to be a nice way to implement the finite volume method for hyperbolic conservation laws. In this project we study one generalization of the standard wave-propagation method which decomposes the flux into waves of the eigenvectors of the Jacobian matrix rather than decomposing the conserved quantities. Computational experiments using the f-wave method are performed for 1D heterogeneous nonlinear elastic wave model.
 \section{Introduction and Overview}
 \subsection{Physical Model}
-In this project, we are considering 1D elasticity equations
+Before we get to the f-wave method, firstly, let's introduce the Physical model problem. In this project, we are considering the following 1D elasticity equations
 \begin{align}
 \epsilon(x,t)_t-u(x,t)_x=0 \label{strain}\\
 \rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0 \label{n2}
 \end{align}
-where, $\epsilon$ is the strain, $u$ is the velocity, $\rho$ is the density and $\sigma$ is the stress. These are classical mechanics equations in Lagrangian form. Equation \eqref{strain} comes from the definition of strain. If $v(x)$ is the displacement of small element at $x$, then the strain, i.e. the relative change of displacement is $\epsilon=\frac{dv(x)}{dx}$. Equation \eqref{strain} is then obtained by taking a time derivative. The stress is the force per unit area. Therefore Equation \eqref{n2} is simply Newton's second law. In order to close the system, often the constitutive law $\sigma=\sigma(\epsilon)$ is introduced. The relation depends on the material, for instance:
+where, $\epsilon$ is the strain, $u$ is the velocity, $\rho$ is the density and $\sigma$ is the stress. These are classical mechanics equations in Lagrangian form. Equation \eqref{strain} comes from the definition of strain. If $v(x)$ is the displacement of small element at $x$, then the strain, i.e. the relative change of displacement is $\epsilon=\frac{dv(x)}{dx}$. Equation \eqref{strain} is then obtained by taking a time derivative of the equation. The stress is the force per unit area. Therefore Equation \eqref{n2} is simply Newton's second law. In order to close the system, often the constitutive law $\sigma=\sigma(\epsilon)$ is introduced. The relation depends on the material, for instance:
 \begin{itemize}
 \item The simplest linear media:
 \begin{align}
@@ -56,7 +56,7 @@ here $K(x)$ is the bulk modulus or Young's modulus which determines the stiffnes
 \sigma(x,t)=K(x)\epsilon(x,t)+\beta K^2(x)\epsilon^2
 \label{quads}
 \end{align}
-\item Nonlinear model with quadratic relation:
+\item Nonlinear model with exponential relation:
 \begin{align}
 \sigma(x,t)=\exp(K(x)\epsilon(x,t))-1
 \label{exps}
@@ -69,10 +69,11 @@ K_A & \mbox{if }j\delta<x<(j+\alpha)\delta \mbox{ for some integer } j,\\
 K_B & \mbox{otherwise.}
 \end{array}
 \right.
+\label{layered}
 \end{align}
 Here $\delta$ is the period and $\alpha$ is the proportion of the first type of medium.
 \end{itemize}
-In small $\epsilon$ case, Equation \eqref{exps} is approximated by Equation \eqref{quads} if $\beta=0.5$ while they are both approximated by the linear model in Equation \eqref{lins}.
+In small $\epsilon$ case, Equation \eqref{exps} is approximated by Equation \eqref{quads} if $\beta=0.5$ while they are both approximated by the linear model in Equation \eqref{lins}. In this project, we focus on the layered media in Equation \eqref{layered} with the nonlinear constitutive relation in Equation \eqref{exps}. The interesting fact of this model is that the layered media gives rise to an effective dispersion due to the reflection and transmission. Therefore, the interaction with the nonlinearity finally produces soliton solutions in Figure \ref{travelw}.
 \subsection{Issues with variable coefficients equations and the idea of f-wave method}
 As we have seen in class, the variable coefficients can sometimes be treated as the solution to an additional PDE. For instance, if we assume the linear media for the 1D elasticity equations above. $K(x)_t=0$ could be added to the system. Therefore,
 \begin{align*}
@@ -82,24 +83,24 @@ K(x)_t=0
 \end{align*}
 becomes a nonlinear (linearly degenerate) constant coefficient system of conservation law. This additional equation introduces a new line of characteristics $x=x_{i-1/2}$ which is stationary. As a result of this new discontinuity locating on the edges of cells, if one still work with the original system with one less equation, the decomposition of $Q_i-Q_{i-1}$ using eigenvectors (w-waves) would be wrong without the consideration of the jump across $x_{i-1/2}$. However, notice that in the wave-propagation form updating formula
 \begin{align}
-Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum (\lambda^p)^-W_{i+1/2}^p+\sum (\lambda^p)^+ W_{i-1/2}^p\right]
+Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum_{p=1}^{3} (\lambda^p)^-{\cal W}_{i+1/2}^p+\sum_{p=1}^{3} (\lambda^p)^+ {\cal W}_{i-1/2}^p\right]
 \end{align}
-there's no contribution of the wave with speed zero. Therefore, one may seek for different approaches. As can be seen from the name, the idea of f-wave method is to decompose the flux difference $f(Q_i)-f(Q_{i-1})$ using eigenvector of the original system:
+there's no contribution of the wave with speed zero. Therefore, one may seek for different approaches. As can be seen from the name, the idea of f-wave method is to decompose the flux difference $f(Q_i)-f(Q_{i-1})$ using eigenvector of the original (2 by 2) system:
 \begin{align}
-f(Q_i)-f(Q_{i-1})=\sum \beta^p_{i-1/2} r^p_{i-1/2}\equiv \sum Z^p_{i-1/2}.
+f(Q_i)-f(Q_{i-1})=\sum_{p=1}^{2} \beta^p_{i-1/2} r^p_{i-1/2}\equiv \sum_{p=1}^{2} {\cal Z}^p_{i-1/2}.
 \end{align}
 Since the Rankine-Hugoniot condition across the discontinuity with speed zero means the continuity of the flux, both the wave-propagation formula and the Rankine-Hugoniot condition suggest that considering propagations of discontinuities of the fluxes is more appropriate.
 \subsection{Implementation}
-The f-wave method uses the updating formula:
+In face the f-wave method is very easy to implement. One only needs a little modification if there is the code of the standard w-wave method. Therefore, we think it is more illustrative to show the implementation first. The f-wave method uses the updating formula:
 \begin{align}
-Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) Z_{i+1/2}^p+\sum sign((\lambda^p)^+) Z_{i-1/2}^p\right]
+Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) {\cal Z}_{i+1/2}^p+\sum sign((\lambda^p)^+) {\cal Z}_{i-1/2}^p\right]
 \end{align}
 Therefore, the change from w-wave to f-wave is simple provided the approximate Riemann solver is given. Hence, we give the following procedure in the construction of the codes for the Riemann solver:
 \begin{enumerate}
 \item Obtain the approximate Jacobian $A_{i-1/2}$ or, alternatively, get the eigenvalues $s^p$ and eigenvectors $r^p$ of the approximate Jacobian.
 \item Decompose the flux difference to get $\beta=R^{-1}(f(Q_i)-f(Q_{i-1}))$. The p-th f-wave is then given by $\beta^p r^p$.
-\item Sum up $A^- \Delta q$ all the left-going f-wave, and $A^+ \Delta q$ all the right-going wave. In this problem, since we only have two equations and the sound speed is $\pm_c$, $A^- \Delta q$ contains the 1-f-wave and $A^+ \Delta q$ contains the 2-f-wave.
-\item If needed, $W^p=Z^p/s^p$ the w-waves can be recovered by a division. However, numerical error may occur when $s^p$ is close to zero.
+\item Sum up ${\cal A}^- \Delta q$ all the left-going f-wave, and ${\cal A}^+ \Delta q$ all the right-going wave. In this problem, since we only have two equations and the sound speed is $\pm c$, ${\cal A}^- \Delta q$ contains the 1-f-wave and ${\cal A}^+ \Delta q$ contains the 2-f-wave.
+\item If needed, ${\cal W}^p={\cal Z}^p/s^p$ the w-waves can be recovered by a division. However, numerical error may occur when $s^p$ is close to zero.
 \end{enumerate}
 The f-wave approach has already been implemented in CLAWPACK. One need only return the waves as fwaves in the Riemann solver and set the flag\\
 \verb clawdata.use_fwaves = \verb True  in \verb setrun.py .
@@ -112,16 +113,57 @@ The f-wave approach has already been implemented in CLAWPACK. One need only retu
     \item Justification of the Riemann solver used in \cite[p. 967]{bale2002}  ---done
     \item The non-conservation when using w-wave in wave-propagation algorithm for 1) nonlinear autonomous systems with simple Riemann solver (HLL? p. 328 in the textbook), 2) non-autonomous systems with "Roe average" Rieman solver.    ----partially done
 %    \item The non-conservation when using w-wave in wave-propagation algorithm and possible fix approximate Riemann solvers for 1) nonlinear autonomous systems with simple Riemann solver (HLL? p. 328 in the textbook), 2) non-autonomous systems with "Roe average" Rieman solver. p. 318 in the textbook
-    \item The slight difference of using $\mathcal{Z}=s\mathcal{W}$ in the limiter to get high-resolution methods. \cite[p. 964]{bale2002} p. 335 in the textbook.
+    \item The slight difference of using $\mathcal{{\cal Z}}=s\mathcal{{\cal W}}$ in the limiter to get high-resolution methods. \cite[p. 964]{bale2002} p. 335 in the textbook.
     \item The new line of discontinuities caused by the discontinuities of the coefficient. \cite[p. 960]{bale2002}   ---done
     \item The breakdown of f-wave method in the case of singular flux (delta distribution).  \cite[p. 961]{bale2002}
     \end{itemize}
 \item If possible, have some discussion on the dispersive properties of layered media i.e, solitons and shocks.
 \end{enumerate}
 The importance of the goals is decreasing in the order.
-\section{Theoretical Background}
-\subsection{Approximate Riemann Solver}
-Since we are dealing with a nonlinear system, exact solutions to the Riemann problem is usually costly, the implementation of an approximate Riemann solver is inevitable, however, it is often enough to give good approximations as we shall see later in the numerical simulations. Here we use the approximate Riemann solver introduced in \cite{leveque2003}. Instead of giving the approximate Jacobian $A_{i-1/2}$ directly, we specify the eigenvalues and eigenvectors of $A_{i-1/2}$:
+\section{Some other theoretical issues}
+\subsection{Approximate Riemann Solver for Nonlinear elastic waves}
+Since we are dealing with a nonlinear system, exact solutions to the Riemann problem is usually costly, the implementation of an approximate Riemann solver is inevitable, however, it is often enough to give good approximations as we shall see later in the numerical simulations. Here we use the approximate Riemann solver introduced in \cite{leveque2003}. For the system of conservation laws \eqref{strain} \eqref{n2}, the flux is
+\begin{align}
+f(q,x)=\left(
+                     \begin{array}{cc}
+                       -\frac{\rho(x)u}{\rho(x)} & -\sigma(\epsilon,x) \\
+                     \end{array}
+                   \right)^T
+\end{align}
+with the Jacobian
+\begin{align}
+f_q(q,x)=\left(
+                     \begin{array}{cc}
+                       0  &  -\frac{1}{\rho}\\
+                       -\sigma_{\epsilon}(\epsilon,x) &  0 \\
+                     \end{array}
+                   \right).
+\end{align}
+The eigenvectors of the Jacobian are $\pm c(\epsilon,x)$, where the wave speed is given by
+\begin{align}
+c(q,x)=\sqrt{\frac{\sigma_{\epsilon}(\epsilon,x)}{\rho(x)}}
+\label{sounds}
+\end{align}
+and the corresponding eigenvectors are
+\begin{align}
+r^1(q,x)=\left(
+                     \begin{array}{c}
+                       1 \\
+                       Z(q,x)
+                     \end{array}
+                   \right)  ,\,\,\, \mbox{for } s^1(q,x)=-c(q,x)
+\end{align}
+and
+\begin{align}
+r^2(q,x)=\left(
+                     \begin{array}{c}
+                       1 \\
+                       -Z(q,x)
+                     \end{array}
+                   \right)  ,\,\,\, \mbox{for } s^2(q,x)=c(q,x)
+\end{align}
+where $Z(q,x)=\rho(x)c(q,x)$ is the impedance.
+Instead of giving the approximate Jacobian $A_{i-1/2}$ directly, we specify the eigenvalues and eigenvectors of $A_{i-1/2}$:
 \begin{align}
 r^1_{i-1/2}=r^1_{i-1}=\left[
                         \begin{array}{c}
@@ -134,21 +176,37 @@ r^2_{i-1/2}=r^2_{i}=\left[
                         \end{array}
                       \right], &\,\,\, s^2_{i-1/2}=-\sqrt{\frac{\sigma'_{i}(\epsilon_{i})}{\rho_{i}}}
 \end{align}
-Here we are using the solution to the eigenvalue problem of the exact Jacobian but evaluating the eigenvalues and eigenvectors according to the cells where they are. This follows from the fact that there can be no transonic rarefaction waves for these equations. One issue about using this approximate Riemann solver in the standard wave propagation form is that the "Roe condition":
+Here we are using the solution to the eigenvalue problem of the exact Jacobian but evaluating the eigenvalues and eigenvectors according to the cells where they are. This follows from the fact that there can be no transonic rarefaction waves for these equations. As we can see from \eqref{sounds}, the existence of sonic point requires $c(q,x)=0$ which means $\sigma_{\epsilon}=0$ and the system is not hyperbolic any more. %This is the condition for creep in viscoelasitic material and will not happen in the elastic material discussed here.
+One issue about using this approximate Riemann solver in the standard wave propagation form is that the "Roe condition":
 \begin{align}
 A_{i-1/2}(Q_i-Q_{i-1})=f_{i}(Q_i)-f_{i-1}(Q_{i-1})
 \end{align}
 is not satisfied.
-A quick verification can be seen by checking whether $Z^1_{i-1/2}=\beta^1 r^1=s^1_{i-1/2} \alpha^1r^1=s^1_{i-1/2}W^1_{i-1/2}$. After decomposition,
+A quick verification can be seen by checking whether ${\cal Z}^1_{i-1/2}=\beta^1 r^1=s^1_{i-1/2} \alpha^1r^1=s^1_{i-1/2}{\cal W}^1_{i-1/2}$. After decomposition,
 \[
-\beta^1_{i-1/2}=\frac{\sigma_i-\sigma_{i-1}+Z_i(u_i-u_{i-1})}{Z_i+Z_{i-1}}
+\beta^1_{i-1/2}=\frac{\sigma_i-\sigma_{i-1}+{ Z}_i(u_i-u_{i-1})}{{ Z}_i+{ Z}_{i-1}}
 \]
 while
 \[
 \alpha^1_{i-1/2}=\frac{\rho_i u_i-\rho_{i-1}u_{i-1}+Z_i(\epsilon_i-\epsilon_{i-1})}{Z_i+Z_{i-1}}
 \]
 with $s^1_{i-1/2}=-\sqrt{\frac{\sigma'_{i-1}(\epsilon_{i-1})}{\rho_{i-1}}}$
-and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to show that $ \beta^1 \neq s^1_{i-1/2} \alpha^1$. The direct consequence with the breakdown of the "Roe condition" is that the standard w-wave propagation scheme may not be conservative any more. However, it is straightforward to see that in the f-wave method, since we are decomposing $f_{i}(Q_i)-f_{i-1}(Q_{i-1})$ into waves, the flux difference will not change and be equal to the fluctuations which assembles the waves. As a result, the f-wave method allows the schemes to be conservative even if the "Roe condition" is not satisfied and it provides us more flexibility in choosing approximate Riemann solvers.
+and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to show that $ \beta^1 \neq s^1_{i-1/2} \alpha^1$. The direct consequence with the breakdown of the "Roe condition" is that the standard w-wave propagation scheme may not be conservative any more. However, it is straightforward to see that in the f-wave method, since we are decomposing $f_{i}(Q_i)-f_{i-1}(Q_{i-1})$ into waves, the flux difference will not change and be equal to the fluctuations which assembles the waves. As a result, the f-wave method allows the schemes to be conservative even if the "Roe condition" is not satisfied and it provides us more flexibility in choosing approximate Riemann solvers. On the other hand, if the Roe solver is used, in the unlimited case, the f-wave method will have exactly the same results as the standard w-wave method. In the case with limiters, the correction term in the f-wave method is
+\begin{align}
+\tilde{F}_{i-1/2}=\frac{1}{2}\sum_{p=1}^{m} sgn(s_{i-1/2}^{p})(1-\frac{\Delta t}{\Delta x}\abs{s^p_{i-1/2}}){\cal Z}^p_{i-1/2} \phi(\theta^p_{i-1/2}),
+\end{align}
+where $\phi$ is the limiter function and $\theta^p_{i-1/2}=\beta^p_{I-1/2}/\beta^p_{i-1/2}$ is the ratio of the flux difference of the pth wave at the interface on the upwind side of $x_{i-1/2}$ over the flux difference of the pth wave at $x_{i-1/2}$. When Roe solver is used, the correction term in the w-wave method is
+\begin{align}
+\tilde{F}_{i-1/2}=\frac{1}{2}\sum_{p=1}^{m} sgn(s_{i-1/2}^{p})(1-\frac{\Delta t}{\Delta x}\abs{s^p_{i-1/2}})\abs{s_{i-1/2}^p}{\cal W}^p_{i-1/2} \phi(\kappa^p_{i-1/2}),
+\end{align}
+where
+\[
+\kappa^p_{i-1/2}=\frac{\alpha^p_{I-1/2}}{\alpha^p_{i-1/2}}
+\neq
+\frac{s^p_{I-1/2}\alpha^p_{I-1/2}}{s^p_{i-1/2}\alpha^p_{i-1/2}}
+=\frac{\beta^p_{I-1/2}}{\beta^p_{i-1/2}}=\theta^p_{i-1/2}.
+\]
+
 \subsection{Discretization of Flux Function}
 	For spatially varying flux function, flux function $f(q,x)$ can be discretized with respect to $x$ in some manner consistent with a finite-volume interpretation. In this project, we are considering cell-centered flux functions $f_i(q)$ which holds throughout the $i$th cell. For sufficiently smooth $f$, this flux function might be defined simply by $f_i(q)=f(q,x_i)$. When cell-centered flux functions are used, the generalized Riemann problem at cell interface $x_{i-1/2}$ consists of the equation
 	\[
@@ -163,10 +221,26 @@ and $Z_i=\sqrt{\sigma'_{i}(\epsilon_{i})\rho_{i}}$. Calculation can be done to s
 	
 	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems. Nontrivial waves can arise from these points because of the jump in flux. And as a result, we need to include flow generated from these discontinuities.
 \subsection{Breakdown of F-wave Method}
-The primary advantage of the f-wave method is based on that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock. 
+The primary advantage of the f-wave method is based on that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock.
 	
-\section{Computational Results}
-See Figure \ref{travelw} for the soliton-like "travelling waves".
+\section{Numerical simulation of the nonlinear layered media}
+\subsection{Effect of impedance}
+Similar to the effect of the impedance in linear acoustic equations, the impedance here controls the reflection of the waves. Figure \ref{imp} shows a stress wave passing through the interface of two homogeneous nonlinear materials. In the plots on the left column, the two materials have the same impedance, we see the wave is sharpening in the front and is followed by a rarefaction wave due to the nonlinearity. In the plots on the right column, instead of the generation of the shock from the nonlinear effect, part of the wave is bouncing back when the wave hits the interface while the rest passes through the interface. From here, we could imagine that in the periodic layered media, the waves will be constantly bouncing back between the interfaces. As a result, this gives rise to an equivalent dispersion effect. This dispersion interacts with the nonlinearity and produces the soliton-like "travelling waves" in Figure \ref{travelw} for the periodic layered media.
+
+\begin{figure}
+  % Requires \usepackage{graphicx}
+  \includegraphics[width=0.5\textwidth]{homo1.png}
+  \includegraphics[width=0.5\textwidth]{reflect1.png}
+  \includegraphics[width=0.5\textwidth]{homo2.png}
+  \includegraphics[width=0.5\textwidth]{reflect2.png}
+  \includegraphics[width=0.5\textwidth]{homo3.png}
+  \includegraphics[width=0.5\textwidth]{reflect3.png}
+  \caption{The wave travelling through the interface (at $x=50$) of two materials. Left column: two homogeneous materials with the same impedance. Right column: two homogeneous materials with different impedance.}
+  \label{imp}
+\end{figure}
+
+
+
 \begin{figure}
   % Requires \usepackage{graphicx}
   \includegraphics[width=0.5\textwidth]{frame0004fig1.png}
