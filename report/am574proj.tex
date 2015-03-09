@@ -223,19 +223,88 @@ where
 \subsection{Breakdown of F-wave Method}
 The primary advantage of the f-wave method is based on that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock.
 	
-\section{Numerical simulation of the nonlinear layered media}
+\section{Numerical simulation}
 \subsection{Effect of impedance}
-Similar to the effect of the impedance in linear acoustic equations, the impedance here controls the reflection of the waves. Figure \ref{imp} shows a stress wave passing through the interface of two homogeneous nonlinear materials. In the plots on the left column, the two materials have the same impedance, we see the wave is sharpening in the front and is followed by a rarefaction wave due to the nonlinearity. In the plots on the right column, instead of the generation of the shock from the nonlinear effect, part of the wave is bouncing back when the wave hits the interface while the rest passes through the interface. From here, we could imagine that in the periodic layered media, the waves will be constantly bouncing back between the interfaces. As a result, this gives rise to an equivalent dispersion effect. This dispersion interacts with the nonlinearity and produces the soliton-like "travelling waves" in Figure \ref{travelw} for the periodic layered media.
+Similar to the effect of the impedance in linear acoustic equations, the impedance here controls the reflection of the waves. Consider the generalize Rimann problem for the linearization of Equation \eqref{strain} \eqref{n2}. i.e., for small amplitude waves with \eqref{lins} as the constitutive relation.
+\begin{align}
+\left(
+  \begin{array}{c}
+    \epsilon \\
+    \rho u \\
+  \end{array}
+\right)_t+ 
+\left(
+             \begin{array}{c}
+                      -u \\
+                      -K\epsilon \\
+                    \end{array}
+             \right)_x=0
+\end{align}
+where $x=0$ is the interface of the two material,
+\begin{align}
+	\rho(x)=\begin{cases}\rho_l & \text{if } x<0 \\
+	\rho_r & \text{if } x>0\end{cases}, \,\,\,
+	K(x)=\begin{cases}K_l & \text{if } x<0 \\
+	K_r & \text{if } x>0\end{cases}
+\end{align}
+with the initial condition
+\begin{align}
+	\epsilon(x,0)=\begin{cases}\epsilon_l & \text{if } x<0 \\
+	\epsilon_r & \text{if } x>0\end{cases}, \,\,\,
+	u(x,0)=\begin{cases}u_l & \text{if } x<0 \\
+	u_r & \text{if } x>0\end{cases}
+\end{align}
+Let $q=(\epsilon,\rho u)^T$. The solution to the Riemann problem will consist of four states $q_l,q_l^*,q_r^*,q_r$. from the left to the right. Using the Rankine Hugoniot condition, the jump between $q_l,q_l^*$ is proportional to the left going wave in the left medium
+\begin{align}
+q_l^*-q_l=\alpha_1 r^1_l=\alpha_1   \left( \begin{array}{c}
+                      1 \\
+                      Z_l \\
+                    \end{array}\right).
+\end{align}
+The jump between $q_r^*,q_r$ is proportional to the right going wave in the right medium
+\begin{align}
+q_r-q_r^*=\alpha_2 r^2_r=\alpha_2   \left( \begin{array}{c}
+                      1 \\
+                      -Z_r \\
+                    \end{array}\right).
+\end{align}
+The jump between $q_l^*,q_r^*$ is determined by the continuity of the flux
+\begin{align}
+f_l(q_l^*)=f_r(q_r^*).
+\end{align}
+If furthermore we assume initially there is a right going wave coming from the left, i.e. 
+\begin{align}
+q_r-q_l=\beta r^2_l=\beta\left( \begin{array}{c}
+                      1 \\
+                      -Z_l \\
+                    \end{array}\right),\,\,\, q_r=(0,0)^T
+\end{align} 
+we get 
+\begin{align}
+\alpha_1= -{\frac {\, \left( {\it Z_l}-{\it Z_r}
+ \right) }{{\it Z_l}+{\it Z_r}}}\beta\\ 
+\alpha_2=  {\frac {2{\it c_l
+}\,{\it Z_l}\,}{ {\it c_r}\left( {\it Z_l}+{\it Z_r} \right) }}\beta.
+\end{align}
+Figure \ref{imp} shows a stress wave passing through the interface of two homogeneous nonlinear materials. In the plots on the left column, the two materials have the same impedance and the same sound speed, we see the wave is sharpening in the front and is followed by a rarefaction wave due to the nonlinearity. In the plots in the middle column, the stress wave is passing through the interface but the shape changes not only due to the nonlinearity but also because of the sound speed change in the material. In the plots on the right column, instead of the generation of the shock from the nonlinear effect, part of the wave is bouncing back when the wave hits the interface while the rest passes through the interface. From here, we could imagine that in the periodic layered media, the waves will be constantly bouncing back between the interfaces. As a result, this gives rise to an equivalent dispersion effect.
+\subsection{Soliton solutions}
+This dispersion interacts with the nonlinearity and produces the soliton-like "travelling waves" in Figure \ref{travelw} for the periodic layered media.
 
 \begin{figure}
   % Requires \usepackage{graphicx}
-  \includegraphics[width=0.5\textwidth]{homo1.png}
-  \includegraphics[width=0.5\textwidth]{reflect1.png}
-  \includegraphics[width=0.5\textwidth]{homo2.png}
-  \includegraphics[width=0.5\textwidth]{reflect2.png}
-  \includegraphics[width=0.5\textwidth]{homo3.png}
-  \includegraphics[width=0.5\textwidth]{reflect3.png}
-  \caption{The wave travelling through the interface (at $x=50$) of two materials. Left column: two homogeneous materials with the same impedance. Right column: two homogeneous materials with different impedance.}
+  \includegraphics[width=0.3\textwidth]{homo1.png}
+  \includegraphics[width=0.3\textwidth]{sound1.png}  
+  \includegraphics[width=0.3\textwidth]{reflect1.png}\\
+  \includegraphics[width=0.3\textwidth]{homo2.png}
+  \includegraphics[width=0.3\textwidth]{sound2.png}
+  \includegraphics[width=0.3\textwidth]{reflect2.png}\\
+  \includegraphics[width=0.3\textwidth]{homo3.png}
+  \includegraphics[width=0.3\textwidth]{sound3.png}
+  \includegraphics[width=0.3\textwidth]{reflect3.png}\\
+    \includegraphics[width=0.3\textwidth]{homo4.png}
+  \includegraphics[width=0.3\textwidth]{sound4.png}
+  \includegraphics[width=0.3\textwidth]{reflect4.png}
+  \caption{The wave travelling through the interface (at $x=50$) of two materials. Left column: two homogeneous materials with the same impedance and sound speed. Middle column: two homogeneous materials with the same impedance and different sound speeds. Right column: two homogeneous materials with different impedances and the same sound speed.}
   \label{imp}
 \end{figure}
 
@@ -254,10 +323,8 @@ Similar to the effect of the impedance in linear acoustic equations, the impedan
 \end{figure}
 
 
-\section{Summary and Conclusions}
-
-
-
+\section{Summary}
+When solving hyperbolic conservation laws using wave-propagation form, it is better and more convenient to use f-wave method since the method allows Riemann solver to maintain conservation even if the Roe condition is not satisfies and avoids the implementation of the extra discontinuities from the variable coefficients. In the numerical simulations for nonlinear layered media, we see that in the case where the impedance of the layered media is not constant, the wave will reflect when it hits the interface. The constant reflection finally gives rise to an equivalent dispersion which combines the nonlinearity and produces soliton solutions.
 %\section{Appendix A: MATLAB functions used and brief implementation explanation}
 %\section{Appendix B: MATLAB codes}
 %\section{Appendix C(optional)} Any algebraically intense calculations.
