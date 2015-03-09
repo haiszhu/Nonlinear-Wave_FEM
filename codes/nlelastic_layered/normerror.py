@@ -3,12 +3,12 @@ Compute error in elastic solution
 
 Right now, read in data should be right (print check). Also xclaw is excutable with for loop.
 Not sure whatelse to imoport. 
-Error compute seems to work. Need to check if it gives the right result.
+Error compute works
 
-To use different set of values of mx. Need to change reshape_para accordingly.
-If domain size has changed, also need to change expression of dx. Domain size 
-can be set as pass in parameter for setrun.py. Will change later after testing 
-error results.
+Now only need to change mx value set, and then change domain of the problem accordingly.
+
+Getting order 1.2--1.3 for both continuous and layered case. The flux relation is exp. 
+Further check for quard
 
 """
 
@@ -29,14 +29,23 @@ i = 0
 #for mx in [17280, 1080, 2160, 8640]:
 #for mx in [ 3200, 100, 200, 400, 800, 1600]:
 #for mx in [ 200, 100]:
-for mx in [ 360*16, 180, 360, 720, 360*4, 360*8]:
+for mx in [ 360*128, 360*8, 360*16, 360*32, 360*64]:
+
+    if i == 0:
+	mx_exact = mx
+    xlower = 0.000000e+00
+    xupper = 3.6000000e+02 
+    dx = (xupper - xlower)/mx
+
 
     #Set setrun clawdata (some maybe unnecessary, will see)
     rundata=setrun.setrun('classic')
 
-    rundata.clawdata.num_cells[0]=mx
-    rundata.clawdata.num_output_times=40	# output_times=1 won't work for high grid resolution
-    rundata.clawdata.tfinal=2.0000e+02
+    rundata.clawdata.num_cells[0] = mx
+    rundata.clawdata.num_output_times = 40	# output_times=1 won't work for high grid resolution
+    rundata.clawdata.tfinal = .5000000e+02
+    rundata.clawdata.lower[0] = xlower
+    rundata.clawdata.upper[0] = xupper 
     rundata.write()
     runclaw(xclawcmd='xclaw',outdir=outdir)	# xclaw.exe file produced after make .exe 
 
@@ -56,11 +65,7 @@ for mx in [ 360*16, 180, 360, 720, 360*4, 360*8]:
 #    print aux.shape
 
     #Compute parameter for error calculation
-    dx = 3.6000000e+02/mx
-#    reshape_para = 17280/mx
-#    reshape_para = 3200/mx
-#    reshape_para = 200/mx
-    reshape_para = 360*16/mx
+    reshape_para = mx_exact/mx
 
 #    print reshape_para
 #    print u.shape
