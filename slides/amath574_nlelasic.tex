@@ -3,7 +3,6 @@
 \documentclass{beamer}
 \graphicspath{{_plots/}}
 
-\usepackage{animate}
 \usepackage[makeroom]{cancel}
 \usepackage{epstopdf}
 \providecommand{\abs}[1]{\lvert#1\rvert}
@@ -54,7 +53,7 @@
 
 
 \title%[Short Paper Title] % (optional, use only with long paper titles)
-{The f-wave method }
+{The f-wave method for nonlinear conservation laws with spatially varying flux}
 
 %\subtitle
 %{Include Only If Paper Has a Subtitle}
@@ -142,55 +141,194 @@
 % - If you omit details that are vital to the proof/implementation,
 %   just say so once. Everybody will be happy with that.
 
-\section{Introduction}
-\begin{frame}{What is the f-wave method?}
-Idea is simple.
-Wave-propagation form \\
+\section{Review}
+\subsection{The wave-propagation form}
+\begin{frame}{Review on the wave-propagation form}
+Given system of conservation laws
 \[
-Q^{n+1}=Q^n-\frac{\Delta t}{\Delta x}(\sum s^p W^p)
+q_t+f(q)_x=0,
 \]
-we call the wave $W$ w-waves. If instead we decompose $f$, we get f-waves.
+we have the discretization using the wave-propagation form: 
+\[
+Q^{n+1}_i=Q^{n}_i-\frac{\Delta t}{\Delta x}\left(\sum (s^p)^+{\cal W}_{i-1/2}^p+\sum (s^p)^-{\cal W}_{i+1/2}^p\right)
+\]
+where ${\cal W}^p_{i-1/2}$ are the waves of discontinuities generated at the interface between cells $x_{i-1}$ and $x_{i}$ 
 \end{frame}
-
-\begin{frame}{Implementation}
-1.2..3...
+\begin{frame}{Review on the wave-propagation form}
+Generally, ${\cal W}^p_{i-1/2}$ is obtain by decomposing the jumps $Q_i^n-Q_{i-1}^n$ into the eigenvectors of some matrix $A$ approximating the Jacobian matrix $ \nabla_q f(q) $
+\[
+Q_i^n-Q_{i-1}^n=\sum {\cal W}^p_{i-1/2}=\sum \alpha^p r^p 
+\]
 \end{frame}
-
-\begin{frame}{Why f-waves?}
-Approximate Riemann solver. Conservation. Roe condition
-\end{frame}
-
-\section{Model setup}
-\begin{frame}{1D Elastic wave equations}
-\begin{align}
-\epsilon(x,t)_t-u(x,t)_x=0 \label{strain}\\
-\rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0 \label{n2}
-\end{align}
-first equation is definition of strain while the second one is the the newton's second law.
-\end{frame}
-
-\begin{frame}{Structure of solution to the Riemann problem}
-Jacobian, eigenvalues and eigenvectors
-physical meaning of the variables, maybe the effect of continuous  impedance and discontinuous impedance
-\end{frame}
-
-\begin{frame}{Approximate Riemann solver}
-\end{frame}
-
-\section{Periodic layerd media}
-\begin{frame}
+\subsection{Problems in variable coefficient cases}
+\begin{frame}{Problems in variable coefficient cases}
+Consider generalized Riemann problem
+\begin{align*}
+	\begin{cases}q_t+(u_l q)_x=0 & \text{if } x<0 \\
+	q_t+(u_r q)_x=0 & \text{if } x>0\end{cases}, \,\,\,
+	q(x,0)=\begin{cases}q_l & \text{if } x<0 \\
+	q_r & \text{if } x>0\end{cases}
+\end{align*}
 \begin{figure}
   \centering
   % Requires \usepackage{graphicx}
-  \includegraphics[width=\textwidth]{frame41}\\
-  \caption{stegoton}\label{ste}
+  \includegraphics[width=\textwidth]{discon.png}\\
+\end{figure}
+\cite[p. 960]{bale2002}
+\end{frame}
+
+\section{The f-wave method}
+\subsection{Definition}
+\begin{frame}{What is the f-wave method?}
+Flux differencing form: 
+\[
+Q^{n+1}_i=Q^n_i-\frac{\Delta t}{\Delta x}\left( f(Q_{i+1/2})-f(Q_{i-1/2})\right)
+\]
+we call the wave ${\cal W}$ w-waves. If instead we decompose the difference of flux, we get f-waves ${\cal Z}^p_{i-1/2}$.
+\begin{align*}
+f(Q_i)-f(Q_{i-1})=\sum \beta^p_{i-1/2} r^p_{i-1/2}\equiv \sum {\cal Z}^p_{i-1/2}.
+\end{align*}
+\end{frame}
+
+%\begin{frame}{Implementation}
+%1.2..3...
+%\end{frame}
+\subsection{Advantages}
+\begin{frame}{Why f-waves?}
+\begin{itemize}
+\item Easy to implement.
+\item Better conservation. 
+\item Directly generalized to the case with source term.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Conservation: Roe condition}
+For the standard w-wave propagation form, an approximate Riemann solver is conservative iff
+\begin{align*}
+A_{i-1/2}(Q_i-Q_{i-1})=f_{i}(Q_i)-f_{i-1}(Q_{i-1})
+\end{align*}
+is satisfied. However, the conservation is a natural result in the f-wave method
+\begin{align*}
+Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) {\cal Z}_{i+1/2}^p+\sum sign((\lambda^p)^+) {\cal Z}_{i-1/2}^p\right] \\
+Q_{i+1}^{n+1}=Q_{i+1}^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) {\cal Z}_{i+3/2}^p+\sum sign((\lambda^p)^+) {\cal Z}_{i+1/2}^p\right]
+\end{align*}
+\end{frame}
+
+\section{Nonlinear elastic waves in layered media}
+\subsection{Model setup}
+\begin{frame}{1D Elastic wave equations}
+\begin{align*}
+\epsilon(x,t)_t-u(x,t)_x=0 \\
+\rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0 
+\end{align*}
+The first equation is definition of strain. The second one is the the Newton's second law. We shall consider a nonlinear model with exponential relation
+\begin{align*}
+\sigma(x,t)=\exp(K(x)\epsilon(x,t))-1
+\end{align*}
+in (Periodically) layered media
+\begin{align*}
+K(x)=\left\{
+\begin{array}{cc}
+K_A & \mbox{if }j\delta<x<(j+\alpha)\delta \mbox{ for some integer } j,\\
+K_B & \mbox{otherwise.}
+\end{array}
+\right.
+\end{align*}
+\end{frame}
+
+\begin{frame}{Structure of solution to the Riemann problem}
+The Jacobian
+\begin{align*}
+f_q(q,x)=\left(
+                     \begin{array}{cc}
+                       0  &  -\frac{1}{\rho}\\
+                       -\sigma_{\epsilon}(\epsilon,x) &  0 \\
+                     \end{array}
+                   \right).
+\end{align*}
+Sound speed (eigenvalues)
+\begin{align*}
+c(q,x)=\sqrt{\frac{\sigma_{\epsilon}(\epsilon,x)}{\rho(x)}}  \Longrightarrow \mbox{No transonic rarefaction wave}
+\label{sounds}
+\end{align*}
+Therefore no entropy fix is required and we can choose the solution to the Riemann problem to be all shock solution.
+\end{frame}
+
+\begin{frame}{Approximate Riemann solver}
+Eigenvectors are
+\begin{align*}
+r^1(q,x)=\left(
+                     \begin{array}{c}
+                       1 \\
+                       Z(q,x)
+                     \end{array}
+                   \right)  ,\,\,\, \mbox{for } s^1(q,x)=-\sqrt{\frac{\sigma_{\epsilon}(\epsilon,x)}{\rho(x)}}
+\end{align*}
+\begin{align*}
+r^2(q,x)=\left(
+                     \begin{array}{c}
+                       1 \\
+                       -Z(q,x)
+                     \end{array}
+                   \right)  ,\,\,\, \mbox{for } s^2(q,x)=\sqrt{\frac{\sigma_{\epsilon}(\epsilon,x)}{\rho(x)}}
+\end{align*}
+where $Z(q,x)=\rho(x)c(q,x)$ is the impedance.
+\end{frame}
+
+\begin{frame}{Approximate Riemann solver}
+Instead of giving the approximate Jacobian $A_{i-1/2}$ directly, we specify the eigenvalues and eigenvectors of $A_{i-1/2}$:
+\begin{align}
+r^1_{i-1/2}=r^1_{i-1}=\left[
+                        \begin{array}{c}
+                          1 \\ Z_{i-1} \\
+                        \end{array}
+                      \right], & \,\,\, s^1_{i-1/2}=-\sqrt{\frac{\sigma'_{i-1}(\epsilon_{i-1})}{\rho_{i-1}}}\\
+r^2_{i-1/2}=r^2_{i}=\left[
+                        \begin{array}{c}
+                          1 \\ -Z_{i} \\
+                        \end{array}
+                      \right], &\,\,\, s^2_{i-1/2}=-\sqrt{\frac{\sigma'_{i}(\epsilon_{i})}{\rho_{i}}}
+\end{align}
+Here we are using eigenvalues and eigenvectors according to the cells where they are.
+\end{frame}
+\begin{frame}{Effect of impedance across the interface}
+\begin{figure}
+  % Requires \usepackage{graphicx}
+  \includegraphics[width=0.3\textwidth]{homo1.png}
+  \includegraphics[width=0.3\textwidth]{sound1.png}
+  \includegraphics[width=0.3\textwidth]{reflect1.png}\\
+ % \includegraphics[width=0.3\textwidth]{homo2.png}
+ % \includegraphics[width=0.3\textwidth]{sound2.png}
+ % \includegraphics[width=0.3\textwidth]{reflect2.png}\\
+  \includegraphics[width=0.3\textwidth]{homo3.png}
+  \includegraphics[width=0.3\textwidth]{sound3.png}
+  \includegraphics[width=0.3\textwidth]{reflect3.png}\\
+    \includegraphics[width=0.3\textwidth]{homo4.png}
+  \includegraphics[width=0.3\textwidth]{sound4.png}
+  \includegraphics[width=0.3\textwidth]{reflect4.png}
+  \caption{The wave travelling through the interface (at $x=50$) of two materials. Left column: two homogeneous materials with the same impedance and sound speed. Middle column: two homogeneous materials with the same impedance and different sound speeds. Right column: two homogeneous materials with different impedances and the same sound speed.}
+  \label{imp}
 \end{figure}
 \end{frame}
 
-\begin{frame}
-% \href{run:travellingstegotons.gif}{Stegotons} 
- \href{run:travellingstegotons.gif}{Stegotons}
+\begin{frame}{Generation of solitons in layered media}
+\begin{figure}
+  % Requires \usepackage{graphicx} 
+  \includegraphics[width=0.35\textwidth]{frame0004fig1.png}
+  \includegraphics[width=0.35\textwidth]{frame0008fig1.png}
+  \includegraphics[width=0.35\textwidth]{frame0012fig1.png}\\
+  \includegraphics[width=0.35\textwidth]{frame0020fig1.png}
+  \includegraphics[width=0.35\textwidth]{frame0030fig1.png}
+  \includegraphics[width=0.35\textwidth]{frame0040fig1.png}
+  %\caption{The decomposition of the initial single bump into soliton-like waves.}
+  %\label{travelw}
+\end{figure}
 \end{frame}
+
+\begin{frame}{Question session}
+Thanks for listening. Questions?
+\end{frame}
+
 
 
 % All of the following is optional and typically not needed.
