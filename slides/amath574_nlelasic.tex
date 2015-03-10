@@ -152,7 +152,7 @@ we have the discretization using the wave-propagation form:
 \[
 Q^{n+1}_i=Q^{n}_i-\frac{\Delta t}{\Delta x}\left(\sum (s^p)^+{\cal W}_{i-1/2}^p+\sum (s^p)^-{\cal W}_{i+1/2}^p\right)
 \]
-where ${\cal W}^p_{i-1/2}$ are the waves of discontinuities generated at the interface between cells $x_{i-1}$ and $x_{i}$ 
+where ${\cal W}^p_{i-1/2}$ are the waves of discontinuities generated at the interface between cells $i-1$ and $i$ 
 \end{frame}
 \begin{frame}{Review on the wave-propagation form}
 Generally, ${\cal W}^p_{i-1/2}$ is obtain by decomposing the jumps $Q_i^n-Q_{i-1}^n$ into the eigenvectors of some matrix $A$ approximating the Jacobian matrix $ \nabla_q f(q) $
