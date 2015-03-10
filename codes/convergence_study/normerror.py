@@ -27,18 +27,18 @@ h=[]
 i = 0
 
 #for mx in [17280, 1080, 2160, 8640]:
-for mx in [ 8192, 64, 128, 256, 512, 1024]:
+for mx in [ 8192, 64,128,256, 512, 1024, 2048]:
 #for mx in [ 200, 100]:
 #for mx in [ 360*128, 360*8, 360*16, 360*32, 360*64]:
-#for mx in [ 360*64, 360*4, 360*8, 360*16, 360*32]:
+#for mx in [ 360*64, 360*4, 360*8,  360*16, 360*32]:
 #for mx in [ 1500*2**5, 1500*2, 1500*2**2, 1500*2**3, 1500*2**4]:
-#for mx in [ 1500*2**4, 1500, 1500*2, 1500*2**2, 1500*2**3]:
+#for mx in [ 1500*2**4, 1500, 1500*2, 1500*2**2,1500*2**3]:
 #for mx in [20, 10]:
 
     if i == 0:
 	mx_exact = mx
     xlower = 0.000000e+00
-    xupper = 3.000000e+01
+    xupper = 1.000000e+00
     mframe = 10 
     dx = (xupper - xlower)/mx
 
@@ -48,10 +48,10 @@ for mx in [ 8192, 64, 128, 256, 512, 1024]:
 
     rundata.clawdata.num_cells[0] = mx
     rundata.clawdata.num_output_times = mframe	# output_times=1 won't work for high grid resolution
-    rundata.clawdata.tfinal = 2.000000e+01
+    rundata.clawdata.tfinal = 0.100000e+00
     rundata.clawdata.lower[0] = xlower
     rundata.clawdata.upper[0] = xupper 
-    rundata.clawdata.order = 2
+    rundata.clawdata.order = 1
     rundata.clawdata.bc_lower[0] = 'periodic'#'user'   # at xlower
     rundata.clawdata.bc_upper[0] = 'periodic'#'extrap'   # at xupper
     rundata.write()

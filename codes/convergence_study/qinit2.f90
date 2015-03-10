@@ -18,7 +18,7 @@ subroutine qinit(meqn,mbc,mx,xlower,dx,q,maux,aux)
  
       do i=1,mx
          xcell = xlower + (i-0.5d0)*dx
-         q(1,i)=0.0001*dsin(xcell/10) + 0.0002
+         q(1,i)=1*dsin(2*Pi*xcell)
          q(2,i)=0
       enddo
 

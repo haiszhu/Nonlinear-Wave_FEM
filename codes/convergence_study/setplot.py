@@ -27,15 +27,15 @@ def setplot(plotdata):
     # Set up for axes in this figure:
     plotaxes = plotfigure.new_plotaxes()
     plotaxes.axescmd = 'subplot(1,1,1)'   # top figure
-    plotaxes.xlimits = [0,120]
-    plotaxes.ylimits = [-0.1,0.7]
+    plotaxes.xlimits = 'auto'#[0,30]
+    plotaxes.ylimits = [-5,5]
     #plotaxes.title = 'strain'
     plotaxes.title = 'stress'
 
-    def movingframe(current_data):
-    	if (current_data.t>80):
-    		plotaxes.xlimits = [(current_data.t-80)*240/320,(current_data.t-80)*240/320+120]
-    plotaxes.afteraxes = movingframe
+    #def movingframe(current_data):
+    # 	if (current_data.t>80):
+    #		plotaxes.xlimits = [(current_data.t-80)*240/320,(current_data.t-80)*240/320+120]
+    #plotaxes.afteraxes = movingframe
     
 
     # Set up for item on these axes:
