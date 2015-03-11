@@ -29,16 +29,16 @@
 \providecommand{\norm}[1]{\lVert#1\rVert}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-\title{AMATH574 Conservation Laws and Finite Volume Methods\\ Winter Quarter 2015\\ Project Draft: F-wave method for nonlinear equations with spatially varying fluxes.}
-\author{Instructor : Professor Randall Leveque\\ Student: Hai Zhu(zhuh1106@uw.edu), Xin Yang (yangxin@uw.edu)\\ Due date: Wednesday, Feb. 18, 2015}
+\title{AMATH574 Conservation Laws and Finite Volume Methods\\ Winter Quarter 2015\\ Project Paper: F-wave method for nonlinear equations with spatially varying fluxes.}
+\author{Instructor : Professor Randall Leveque\\ Student: Hai Zhu(zhuh1106@uw.edu), Xin Yang (yangxin@uw.edu)\\ Due date: Friday, March 13, 2015}
 %\date
 \maketitle
 
 \section{Abstract}
 The wave-propagation form has been shown to be a nice way to implement the finite volume method for hyperbolic conservation laws. In this project we study one generalization of the standard wave-propagation method which decomposes the flux into waves of the eigenvectors of the Jacobian matrix rather than decomposing the conserved quantities. Computational experiments using the f-wave method are performed for 1D heterogeneous nonlinear elastic wave model.
-\section{Introduction and Overview}
-\subsection{Physical Model}
-Before we get to the f-wave method, firstly, let's introduce the Physical model problem. In this project, we are considering the following 1D elasticity equations
+\section{Introduction and overview}
+\subsection{Physical model}
+Before we get to the f-wave method, firstly, let's introduce the physical model problem. In this project, we are considering the following 1D elasticity equations
 \begin{align}
 \epsilon(x,t)_t-u(x,t)_x=0 \label{strain}\\
 \rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0 \label{n2}
@@ -53,7 +53,7 @@ where, $\epsilon$ is the strain, $u$ is the velocity, $\rho$ is the density and 
 here $K(x)$ is the bulk modulus or Young's modulus which determines the stiffness of the material.
 \item Relatively simple nonlinear model with quadratic relation:
 \begin{align}
-\sigma(x,t)=K(x)\epsilon(x,t)+\beta K^2(x)\epsilon^2
+\sigma(x,t)=K(x)\epsilon(x,t)+\beta K^2(x)\epsilon(x,t)^2
 \label{quads}
 \end{align}
 \item Nonlinear model with exponential relation:
@@ -63,12 +63,10 @@ here $K(x)$ is the bulk modulus or Young's modulus which determines the stiffnes
 \end{align}
 \item (Periodically) Layered media:
 \begin{align}
-K(x)=\left\{
-\begin{array}{cc}
+K(x)=\begin{cases}
 K_A & \mbox{if }j\delta<x<(j+\alpha)\delta \mbox{ for some integer } j,\\
 K_B & \mbox{otherwise.}
-\end{array}
-\right.
+\end{cases}
 \label{layered}
 \end{align}
 Here $\delta$ is the period and $\alpha$ is the proportion of the first type of medium.
@@ -81,7 +79,7 @@ As we have seen in class, the variable coefficients can sometimes be treated as 
 \rho(x) u(x,t)_t-(K(x)\epsilon)_x=0 \\
 K(x)_t=0
 \end{align*}
-becomes a nonlinear (linearly degenerate) constant coefficient system of conservation law. This additional equation introduces a new line of characteristics $x=x_{i-1/2}$ which is stationary. As a result of this new discontinuity locating on the edges of cells, if one still work with the original system with one less equation, the decomposition of $Q_i-Q_{i-1}$ using eigenvectors (w-waves) would be wrong without the consideration of the jump across $x_{i-1/2}$. However, notice that in the wave-propagation form updating formula
+becomes a nonlinear (linearly degenerate) constant coefficient system of conservation law. This additional equation introduces a new line of characteristics $x=x_{i-1/2}$ which is stationary. As a result of this new discontinuity locating on the edges of cells, if one still work with the original system with one less equation, the decomposition of $Q_i-Q_{i-1}$ using eigenvectors (w-waves) would be wrong without the consideration of the jump across $x_{i-1/2}$. However, notice that in the wave-propagation form of updating formula
 \begin{align}
 Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum_{p=1}^{3} (\lambda^p)^-{\cal W}_{i+1/2}^p+\sum_{p=1}^{3} (\lambda^p)^+ {\cal W}_{i-1/2}^p\right]
 \end{align}
@@ -95,15 +93,16 @@ In face the f-wave method is very easy to implement. One only needs a little mod
 \begin{align}
 Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) {\cal Z}_{i+1/2}^p+\sum sign((\lambda^p)^+) {\cal Z}_{i-1/2}^p\right]
 \end{align}
-Therefore, the change from w-wave to f-wave is simple provided the approximate Riemann solver is given. Hence, we give the following procedure in the construction of the codes for the Riemann solver:
+Therefore, the change from w-wave to f-wave is simply providing the approximate Riemann solver. Hence, we give the following procedure in the construction of the codes for the Riemann solver:
 \begin{enumerate}
 \item Obtain the approximate Jacobian $A_{i-1/2}$ or, alternatively, get the eigenvalues $s^p$ and eigenvectors $r^p$ of the approximate Jacobian.
 \item Decompose the flux difference to get $\beta=R^{-1}(f(Q_i)-f(Q_{i-1}))$. The p-th f-wave is then given by $\beta^p r^p$.
 \item Sum up ${\cal A}^- \Delta q$ all the left-going f-wave, and ${\cal A}^+ \Delta q$ all the right-going wave. In this problem, since we only have two equations and the sound speed is $\pm c$, ${\cal A}^- \Delta q$ contains the 1-f-wave and ${\cal A}^+ \Delta q$ contains the 2-f-wave.
 \item If needed, ${\cal W}^p={\cal Z}^p/s^p$ the w-waves can be recovered by a division. However, numerical error may occur when $s^p$ is close to zero.
 \end{enumerate}
-The f-wave approach has already been implemented in CLAWPACK. One need only return the waves as fwaves in the Riemann solver and set the flag\\
-\verb clawdata.use_fwaves = \verb True  in \verb setrun.py . The idea of using limiters to get the high resolution method still works with the f-waves to be limited as in Equation \eqref{flimiter}. As a validation, we test the code for smooth solution to the nonlinear equations \eqref{strain} \eqref{n2} with smooth varying coefficients. The method is shown to be second order accurate.
+The f-wave approach has already been implemented in CLAWPACK. One need only return the waves as fwaves in the Riemann solver and set the flag \verb clawdata.use_fwaves = \verb True  in \verb setrun.py .\\
+
+\noindent The idea of using limiters to get the high resolution method still works with the f-waves to be limited as in Equation \eqref{flimiter}. As a validation, we test the code for smooth solution to the nonlinear equations \eqref{strain} \eqref{n2} with smooth varying coefficients. The method is shown to be second order accurate.
 \begin{figure}
   \centering
   % Requires \usepackage{graphicx}
@@ -128,12 +127,12 @@ The f-wave approach has already been implemented in CLAWPACK. One need only retu
 %\end{enumerate}
 %The importance of the goals is decreasing in the order.
 \section{Some other theoretical issues}
-\subsection{Approximate Riemann Solver for Nonlinear elastic waves}
-Since we are dealing with a nonlinear system, exact solutions to the Riemann problem is usually costly, the implementation of an approximate Riemann solver is inevitable, however, it is often enough to give good approximations as we shall see later in the numerical simulations. Here we use the approximate Riemann solver introduced in \cite{leveque2003}. For the system of conservation laws \eqref{strain} \eqref{n2}, the flux is
+\subsection{Approximate Riemann solver for nonlinear elastic waves}
+Since we are dealing with a nonlinear system, exact solutions to the Riemann problem is usually costly, the implementation of an approximate Riemann solver is inevitable. However, it is often enough to give good approximations as we shall see later in the numerical simulations. Here we use the approximate Riemann solver introduced in \cite{leveque2003}. For the system of conservation laws \eqref{strain} \eqref{n2}, the flux is
 \begin{align}
 f(q,x)=\left(
                      \begin{array}{cc}
-                       -\frac{\rho(x)u}{\rho(x)} & -\sigma(\epsilon,x) \\
+                       -\frac{\rho(x)u}{\rho(x)}, & -\sigma(\epsilon,x) \\
                      \end{array}
                    \right)^T
 \end{align}
@@ -146,7 +145,7 @@ f_q(q,x)=\left(
                      \end{array}
                    \right).
 \end{align}
-The eigenvectors of the Jacobian are $\pm c(\epsilon,x)$, where the wave speed is given by
+The eigenvectors of the Jacobian are $\pm c(q,x)$, where the wave speed is given by
 \begin{align}
 c(q,x)=\sqrt{\frac{\sigma_{\epsilon}(\epsilon,x)}{\rho(x)}}
 \label{sounds}
@@ -215,7 +214,7 @@ where
 =\frac{\beta^p_{I-1/2}}{\beta^p_{i-1/2}}=\theta^p_{i-1/2}.
 \]
 
-\subsection{Discretization of Flux Function}
+\subsection{Discretization of flux function}
 	For spatially varying flux function, flux function $f(q,x)$ can be discretized with respect to $x$ in some manner consistent with a finite-volume interpretation. In this project, we are considering cell-centered flux functions $f_i(q)$ which holds throughout the $i$th cell. For sufficiently smooth $f$, this flux function might be defined simply by $f_i(q)=f(q,x_i)$. When cell-centered flux functions are used, the generalized Riemann problem at cell interface $x_{i-1/2}$ consists of the equation
 	\[
 	q_t + F_{i-1/2}(q,x)_x=0
@@ -228,7 +227,7 @@ where
 	It is also natural to instead assume that $f_{i-1/2}(q)$ is specified at each cell interface. This cell-edge flux functions measure the flow between cell $i-1$ and cell $i$ which is used in flux-differencing algorithm. However, when we include high-resolution corrections, and apply flux limiter, it can be interpreted as applying the limiter functions to the waves propagation form resulting from the Riemann solutions.\\
 	
 	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems. Nontrivial waves can arise from these points because of the jump in flux. And as a result, we need to include flow generated from these discontinuities.
-\subsection{Breakdown of F-wave Method}
+\subsection{Breakdown of f-wave method}
 The primary advantage of the f-wave method is based on that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock.
 	
 \section{Numerical simulation}
