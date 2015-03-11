@@ -148,16 +148,16 @@ Given system of conservation laws
 \[
 q_t+f(q)_x=0,
 \]
-we have the discretization using the wave-propagation form: 
+we have the discretization using the wave-propagation form:
 \[
 Q^{n+1}_i=Q^{n}_i-\frac{\Delta t}{\Delta x}\left(\sum (s^p)^+{\cal W}_{i-1/2}^p+\sum (s^p)^-{\cal W}_{i+1/2}^p\right)
 \]
-where ${\cal W}^p_{i-1/2}$ are the waves of discontinuities generated at the interface between cells $i-1$ and $i$ 
+where ${\cal W}^p_{i-1/2}$ are the waves of discontinuities generated at the interface between cells $i-1$ and $i$
 \end{frame}
 \begin{frame}{Review on the wave-propagation form}
 Generally, ${\cal W}^p_{i-1/2}$ is obtain by decomposing the jumps $Q_i^n-Q_{i-1}^n$ into the eigenvectors of some matrix $A$ approximating the Jacobian matrix $ \nabla_q f(q) $
 \[
-Q_i^n-Q_{i-1}^n=\sum {\cal W}^p_{i-1/2}=\sum \alpha^p r^p 
+Q_i^n-Q_{i-1}^n=\sum {\cal W}^p_{i-1/2}=\sum \alpha^p r^p
 \]
 \end{frame}
 \subsection{Problems in variable coefficient cases}
@@ -180,7 +180,7 @@ Consider generalized Riemann problem
 \section{The f-wave method}
 \subsection{Definition}
 \begin{frame}{What is the f-wave method?}
-Flux differencing form: 
+Flux differencing form:
 \[
 Q^{n+1}_i=Q^n_i-\frac{\Delta t}{\Delta x}\left( f(Q_{i+1/2})-f(Q_{i-1/2})\right)
 \]
@@ -197,8 +197,9 @@ f(Q_i)-f(Q_{i-1})=\sum \beta^p_{i-1/2} r^p_{i-1/2}\equiv \sum {\cal Z}^p_{i-1/2}
 \begin{frame}{Why f-waves?}
 \begin{itemize}
 \item Easy to implement.
-\item Better conservation. 
+\item Better conservation.
 \item Directly generalized to the case with source term.
+\item May be a more fundamental object.
 \end{itemize}
 \end{frame}
 
@@ -214,12 +215,22 @@ Q_{i+1}^{n+1}=Q_{i+1}^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-
 \end{align*}
 \end{frame}
 
+\begin{frame}{Convergence study}
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[width=0.8\textwidth]{loglog_error.png}\\
+  \caption{$L_1$ error versus cell length. Second order accuracy is obtained for smooth solution.}\label{conv}
+\end{figure}
+
+\end{frame}
+
 \section{Nonlinear elastic waves in layered media}
 \subsection{Model setup}
 \begin{frame}{1D Elastic wave equations}
 \begin{align*}
 \epsilon(x,t)_t-u(x,t)_x=0 \\
-\rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0 
+\rho(x) u(x,t)_t-\sigma(\epsilon,x)_x=0
 \end{align*}
 The first equation is definition of strain. The second one is the the Newton's second law. We shall consider a nonlinear model with exponential relation
 \begin{align*}
@@ -291,7 +302,8 @@ r^2_{i-1/2}=r^2_{i}=\left[
 \end{align}
 Here we are using eigenvalues and eigenvectors according to the cells where they are.
 \end{frame}
-\begin{frame}{Effect of impedance across the interface}
+\subsection{Simulations}
+\begin{frame}{Homogeneous; speed, impedance mismatch}
 \begin{figure}
   % Requires \usepackage{graphicx}
   \includegraphics[width=0.3\textwidth]{homo1.png}
@@ -313,7 +325,7 @@ Here we are using eigenvalues and eigenvectors according to the cells where they
 
 \begin{frame}{Generation of solitons in layered media}
 \begin{figure}
-  % Requires \usepackage{graphicx} 
+  % Requires \usepackage{graphicx}
   \includegraphics[width=0.35\textwidth]{frame0004fig1.png}
   \includegraphics[width=0.35\textwidth]{frame0008fig1.png}
   \includegraphics[width=0.35\textwidth]{frame0012fig1.png}\\
@@ -323,6 +335,20 @@ Here we are using eigenvalues and eigenvectors according to the cells where they
   %\caption{The decomposition of the initial single bump into soliton-like waves.}
   %\label{travelw}
 \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Stegosaurus}
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[width=\textwidth]{stegosaurus.png}\\
+\end{figure}
+ 
+\begin{verbatim}
+From http://ancientadventurescambodia.com
+/tag/stegosaurus/
+\end{verbatim}
+
 \end{frame}
 
 \begin{frame}{Question session}
