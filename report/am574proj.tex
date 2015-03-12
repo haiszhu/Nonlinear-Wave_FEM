@@ -307,8 +307,6 @@ then we get the coefficients for the f-waves for the solution to the generalized
 \end{align}
 in which case the impedance is the only factor for the reflection wave. This again implies that thinking in terms of the f-wave is a better and may possibly be a more fundamental idea of the wave-propagation method.
 Figure \ref{imp} shows a stress wave passing through the interface of two homogeneous nonlinear materials. In the plots on the left column, the two materials have the same impedance and the same sound speed, we see the wave is sharpening in the front and is followed by a rarefaction wave due to the nonlinearity. In the plots in the middle column, the stress wave is passing through the interface but the shape changes not only due to the nonlinearity but also because of the sound speed change in the material. In the plots on the right column, instead of the generation of the shock from the nonlinear effect, part of the wave is bouncing back when the wave hits the interface while the rest passes through the interface. From here, we could imagine that in the periodic layered media, the waves will be constantly bouncing back between the interfaces. As a result, this gives rise to an equivalent dispersion effect.
-\subsection{Soliton solutions}
-Using the homogenized equations for the layered media discussed in the textbook, as shown in \cite{leveque2003} we can study the asymptotics for the averaged solutions over many layers. Without getting into the details. we only include the conclusion that along with a constant coefficient acoustic equation, there will be an extra third order spatial derivative in the homogenized equation. This introduces dispersions like in the KdV equation. As a result, the dispersion interacts with the nonlinearity and produces the soliton-like "travelling waves" in Figure \ref{travelw} for the periodic layered media. The strain in soliton-like solution actually contains several stationary contact discontinuities which looks like the back of the Stegosaurus. Therefore they are named Stegotons.
 \begin{figure}
   % Requires \usepackage{graphicx}
   \includegraphics[width=0.3\textwidth]{homo1.png}
@@ -327,6 +325,9 @@ Using the homogenized equations for the layered media discussed in the textbook,
   \label{imp}
 \end{figure}
 
+\subsection{Dispersion and stegotons}
+Using the homogenized equations for the layered media discussed in the textbook, as shown in \cite{leveque2003} we can study the asymptotics for the averaged solutions over many layers. Without getting into the details. we only include the conclusion that along with a constant coefficient acoustic equation, there will be an extra third order spatial derivative in the homogenized equation. This introduces dispersions like in the KdV equation. Therefore, we hope the dispersion will interact with the nonlinearity and produce soliton solutions for the periodic layered media. This is indeed true. In Figure \ref{travelw}, an initial smooth cosine strain wave is coming from the left boundary. As time goes on, four soliton-like solutions come out of the single wave. However, the soliton-like waves actually contains several stationary contact discontinuities and do not have a fixed profile. Since they look like the back of the Stegosaurus, they are named stegotons. We take a close look at the waves in Figure \ref{collision} and simulate the collision of two stegotons. They seem to have similar behavior as the usual solitions in KdV equations. The shapes of the stegotons are approximately maintained after the collision following by some small wave packets.
+
 \begin{figure}
   % Requires \usepackage{graphicx}
   \includegraphics[width=0.5\textwidth]{frame0004fig1.png}
@@ -339,8 +340,19 @@ Using the homogenized equations for the layered media discussed in the textbook,
   \label{travelw}
 \end{figure}
 
+\begin{figure}
+  % Requires \usepackage{graphicx}
+  \includegraphics[width=0.4\textwidth]{stegoton1.png}
+  \includegraphics[width=0.4\textwidth]{stegoton2.png}\\
+  \includegraphics[width=0.4\textwidth]{stegoton3.png}
+  \includegraphics[width=0.4\textwidth]{stegoton4.png}
+  \caption{The collision of two stegotons.}
+  \label{collision}
+\end{figure}
+
+
 \section{Summary}
-When solving hyperbolic conservation laws using wave-propagation form, it is better and more convenient to use f-wave method since the method allows Riemann solver to maintain conservation even if the Roe condition is not satisfies and avoids the implementation of the extra discontinuities from the variable coefficients. In the numerical simulations for nonlinear layered media, we see that in the case where the impedance of the layered media is not constant, the wave will reflect when it hits the interface. The constant reflection finally gives rise to an equivalent dispersion which combines the nonlinearity and produces soliton solutions.
+In this project, we show that in the case where the flux is spatially variable, the f-wave method is a better formulation for solving hyperbolic conservation laws using wave-propagation form. It is better and more convenient to use f-wave method since the method allows Riemann solver to maintain conservation even if the Roe condition is not satisfies and avoids the implementation of the extra discontinuities from the variable coefficients. In the numerical simulations for nonlinear layered media, we see that in the case where the impedance of the layered media is not constant, the f-wave will reflect when it hits the interface. The constant reflection finally gives rise to an equivalent dispersion which combines the nonlinearity and produces solutions look like and behave similar to solitons.
 %\section{Appendix A: MATLAB functions used and brief implementation explanation}
 %\section{Appendix B: MATLAB codes}
 %\section{Appendix C(optional)} Any algebraically intense calculations.
