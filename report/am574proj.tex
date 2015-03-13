@@ -73,13 +73,13 @@ Here $\delta$ is the period and $\alpha$ is the proportion of the first type of 
 \end{itemize}
 In small $\epsilon$ case, Equation \eqref{exps} is approximated by Equation \eqref{quads} if $\beta=0.5$ while they are both approximated by the linear model in Equation \eqref{lins}. In this project, we focus on the layered media in Equation \eqref{layered} with the nonlinear constitutive relation in Equation \eqref{exps}. The interesting fact of this model is that the layered media gives rise to an effective dispersion due to the reflection and transmission. Therefore, the interaction with the nonlinearity finally produces soliton solutions in Figure \ref{travelw}.
 \subsection{Issues with variable coefficients equations and the idea of f-wave method}
-As we have seen in class, the variable coefficients can sometimes be treated as the solution to an additional PDE. For instance, if we assume the linear media for the 1D elasticity equations above. $K(x)_t=0$ could be added to the system. Therefore,
+As we have seen in class, the variable coefficients can sometimes be treated as the solution to an additional PDE. For instance, if we assume the linear media for the 1D elasticity equations above, then $K(x)_t=0$ could be added to the system. Therefore,
 \begin{align*}
 \epsilon(x,t)_t-u(x,t)_x=0 \\
 \rho(x) u(x,t)_t-(K(x)\epsilon)_x=0 \\
 K(x)_t=0
 \end{align*}
-becomes a nonlinear (linearly degenerate) constant coefficient system of conservation law. This additional equation introduces a new line of characteristics $x=x_{i-1/2}$ which is stationary. As a result of this new discontinuity locating on the edges of cells, if one still work with the original system with one less equation, the decomposition of $Q_i-Q_{i-1}$ using eigenvectors (w-waves) would be wrong without the consideration of the jump across $x_{i-1/2}$. However, notice that in the wave-propagation form of updating formula
+becomes a nonlinear (linearly degenerate) constant coefficient system of conservation law. This additional equation introduces a new line of characteristics $x=x_{i-1/2}$ which is stationary. As a result of this new discontinuity located at the edges of cells, if one still work with the original system with one less equation, the decomposition of $Q_i-Q_{i-1}$ using eigenvectors (w-waves) would be wrong without the consideration of the jump across $x_{i-1/2}$. However, notice that in the wave-propagation form of updating formula
 \begin{align}
 Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum_{p=1}^{3} (\lambda^p)^-{\cal W}_{i+1/2}^p+\sum_{p=1}^{3} (\lambda^p)^+ {\cal W}_{i-1/2}^p\right]
 \end{align}
@@ -89,7 +89,7 @@ f(Q_i)-f(Q_{i-1})=\sum_{p=1}^{2} \beta^p_{i-1/2} r^p_{i-1/2}\equiv \sum_{p=1}^{2
 \end{align}
 Since the Rankine-Hugoniot condition across the discontinuity with speed zero means the continuity of the flux, both the wave-propagation formula and the Rankine-Hugoniot condition suggest that considering propagations of discontinuities of the fluxes is more appropriate.
 \subsection{Implementation}
-In face the f-wave method is very easy to implement. One only needs a little modification if there is the code of the standard w-wave method. Therefore, we think it is more illustrative to show the implementation first. The f-wave method uses the updating formula:
+In fact the f-wave method is very easy to implement. One only needs a little modification to the code of the standard w-wave method. Therefore, we think it is more illustrative to show the implementation first. The f-wave method uses the updating formula:
 \begin{align}
 Q_i^{n+1}=Q_i^{n}-\frac{\Delta t}{\Delta x}\left[\sum sign((\lambda^p)^-) {\cal Z}_{i+1/2}^p+\sum sign((\lambda^p)^+) {\cal Z}_{i-1/2}^p\right]
 \end{align}
@@ -102,7 +102,7 @@ Therefore, the change from w-wave to f-wave is simply providing the approximate 
 \end{enumerate}
 The f-wave approach has already been implemented in CLAWPACK. One need only return the waves as fwaves in the Riemann solver and set the flag \verb clawdata.use_fwaves = \verb True  in \verb setrun.py .\\
 
-\noindent The idea of using limiters to get the high resolution method still works with the f-waves to be limited as in Equation \eqref{flimiter}. As a validation, we test the code for smooth solution to the nonlinear equations \eqref{strain} \eqref{n2} with smooth varying coefficients. The method is shown to be second order accurate.
+\noindent The idea of using limiters to get the high resolution method still works with the f-waves to be limited as in Equation \eqref{flimiter}. As a validation, we test the code for smooth solutions to the nonlinear equations \eqref{strain} \eqref{n2} with smoothly varying coefficients. The method is shown to be second order accurate.
 \begin{figure}
   \centering
   % Requires \usepackage{graphicx}
@@ -182,6 +182,15 @@ r^2_{i-1/2}=r^2_{i}=\left[
                         \end{array}
                       \right], &\,\,\, s^2_{i-1/2}=-\sqrt{\frac{\sigma'_{i}(\epsilon_{i})}{\rho_{i}}}
 \end{align}
+This determines the approximate Jacobian implicitly
+\begin{align}
+A_{i-1/2}:=R \left(
+               \begin{array}{cc}
+                 s^1_{i-1/2} & 0 \\
+                 0 &  s^2_{i-1/2} \\
+               \end{array}
+             \right) R^{-1}, \,\,\,\, R=(r^1_{i-1/2}, r^2_{i-1/2})
+\end{align}
 Here we are using the solution to the eigenvalue problem of the exact Jacobian but evaluating the eigenvalues and eigenvectors according to the cells where they are. This follows from the fact that there can be no transonic rarefaction waves for these equations. As we can see from \eqref{sounds}, the existence of sonic point requires $c(q,x)=0$ which means $\sigma_{\epsilon}=0$ and the system is not hyperbolic any more. %This is the condition for creep in viscoelasitic material and will not happen in the elastic material discussed here.
 One issue about using this approximate Riemann solver in the standard wave propagation form is that the "Roe condition":
 \begin{align}
@@ -214,8 +223,8 @@ where
 =\frac{\beta^p_{I-1/2}}{\beta^p_{i-1/2}}=\theta^p_{i-1/2}.
 \]
 
-\subsection{Discretization of flux function}
-	For spatially varying flux function, flux function $f(q,x)$ can be discretized with respect to $x$ in some manner consistent with a finite-volume interpretation. In this project, we are considering cell-centered flux functions $f_i(q)$ which holds throughout the $i$th cell. For sufficiently smooth $f$, this flux function might be defined simply by $f_i(q)=f(q,x_i)$. When cell-centered flux functions are used, the generalized Riemann problem at cell interface $x_{i-1/2}$ consists of the equation
+\subsection{Discretization of the flux function}
+	For a spatially varying flux function, the flux function $f(q,x)$ can be discretized with respect to $x$ in some manner consistent with a finite-volume interpretation. In this project, we are considering cell-centered flux functions $f_i(q)$ which holds throughout the $i$th cell. For sufficiently smooth $f$, this flux function might be defined simply by $f_i(q)=f(q,x_i)$. When cell-centered flux functions are used, the generalized Riemann problem at cell interface $x_{i-1/2}$ consists of the equation
 	\[
 	q_t + F_{i-1/2}(q,x)_x=0
 	\]
@@ -226,13 +235,13 @@ where
 	\]
 	It is also natural to instead assume that $f_{i-1/2}(q)$ is specified at each cell interface. This cell-edge flux functions measure the flow between cell $i-1$ and cell $i$ which is used in flux-differencing algorithm. However, when we include high-resolution corrections, and apply flux limiter, it can be interpreted as applying the limiter functions to the waves propagation form resulting from the Riemann solutions.\\
 	
-	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems. Nontrivial waves can arise from these points because of the jump in flux. And as a result, we need to include flow generated from these discontinuities.
+	\noindent The wave propagation form for cell-edge flux functions can be related to the cell-centered flux approach by viewing the flux $f_{i-1/2}(q)$ as holding over the interval $[x_{i-1},x_i]$. But that would cause a discontinuity in flux at the cell centers $x_i$. The wave propagation algorithm is based on solving Riemann problem at each interface of discontinuity. For our Riemann problem at $x_{i-1/2}$, we need to solve equations $q_t+f_{i-1/2}(q)_x=0$. Also there is a jump of flux at each cell center $x_i$, which requires to consider a second set of Riemann problems. Nontrivial waves can arise from these points because of the jump in flux. And as a result, we need to include flow generated from these discontinuities.
 \subsection{Breakdown of f-wave method}
-The primary advantage of the f-wave method is based on that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock.
+The primary advantage of the f-wave method is based on the fact that the entire flux difference is decomposed and carried by these propagating f-waves. Thus the flux is continuous across $x_{i-1/2}$. However, this is true only for conservation laws that have bounded solutions for which the flux is continuous everywhere. In one space dimension, the pressureless gas equation system is not strictly hyperbolic. The general solution for Riemann problem with constant initial value and a single discontinuity ($u_{i-1}>u_{i}$) will form delta shocks in both mass and momentum moving at constant velocity. The meaningful single valued weak solution is derived by taking pressure term goes to $0$, which gives a hyperbolic system, but also will introduce two waves with large amplitude and opposite sign. That corresponds to a jump from $Q_{i-1}$ to delta shock intermediate value, and another jump back down to $Q_{i}$. The problem with using f-wave approach is that the decomposed flux in the correction term is large enough to cause poor results. Instead, the f-wave should be considered as one single propagating wave with moving velocity equal to delta shock.
 	
 \section{Numerical simulation}
 \subsection{Effect of impedance}
-For the advective linear acoustic equations, the the reflection waves appear if and only if the impedances do not match on the two sides of the interface. Here we use the generalized Riemann problem to study the effect of impedance in the conservative form in which we show that the impedance may not be the unique quantity for the determination unless one uses another formulation. Consider the generalize Rimann problem for the linearization of Equation \eqref{strain} \eqref{n2}. i.e., for small amplitude waves with \eqref{lins} as the constitutive relation.
+For the advective linear acoustic equations, the reflection waves appear if and only if the impedances do not match on the two sides of the interface. Here we use the generalized Riemann problem to study the effect of impedance in the conservative form in which we show that the impedance is still the unique quantity for the determination of the appearance of the reflection waves but one cannot specify the initial condition purely as a single right-going wave in $q$. Consider the generalized Rimann problem for the linearization of Equation \eqref{strain} \eqref{n2}. i.e., for small amplitude waves with \eqref{lins} as the constitutive relation.
 \begin{align}
 \left(
   \begin{array}{c}
@@ -326,7 +335,7 @@ Figure \ref{imp} shows a stress wave passing through the interface of two homoge
 \end{figure}
 
 \subsection{Dispersion and stegotons}
-Using the homogenized equations for the layered media discussed in the textbook, as shown in \cite{leveque2003} we can study the asymptotics for the averaged solutions over many layers. Without getting into the details. we only include the conclusion that along with a constant coefficient acoustic equation, there will be an extra third order spatial derivative in the homogenized equation. This introduces dispersions like in the KdV equation. Therefore, we hope the dispersion will interact with the nonlinearity and produce soliton solutions for the periodic layered media. This is indeed true. In Figure \ref{travelw}, an initial smooth cosine strain wave is coming from the left boundary. As time goes on, four soliton-like solutions come out of the single wave. However, the soliton-like waves actually contains several stationary contact discontinuities and do not have a fixed profile. Since they look like the back of the Stegosaurus, they are named stegotons. We take a close look at the waves in Figure \ref{collision} and simulate the collision of two stegotons. They seem to have similar behavior as the usual solitions in KdV equations. The shapes of the stegotons are approximately maintained after the collision following by some small wave packets.
+Using the homogenized equations for the layered media discussed in the textbook, as shown in \cite{leveque2003} we can study the asymptotics for the averaged solutions over many layers. Without getting into the details. we only include the conclusion that along with a constant coefficient acoustic equation, there will be an extra third order spatial derivative in the homogenized equation. This introduces dispersion like in the KdV equation. Therefore, we hope the dispersion will interact with the nonlinearity and produce soliton solutions for the periodic layered media. This is indeed true. In Figure \ref{travelw}, an initial smooth cosine strain wave is coming from the left boundary. As time goes on, four soliton-like solutions come out of the single wave. However, the soliton-like waves actually contains several stationary contact discontinuities and do not have a fixed profile. Since they look like the back of the Stegosaurus, they are named stegotons. We take a close look at the waves in Figure \ref{collision} and simulate the collision of two stegotons. They seem to have similar behavior as the usual solitions in KdV equations. The shapes of the stegotons are approximately maintained after the collision following by some small wave packets.
 
 \begin{figure}
   % Requires \usepackage{graphicx}
@@ -352,7 +361,7 @@ Using the homogenized equations for the layered media discussed in the textbook,
 
 
 \section{Summary}
-In this project, we show that in the case where the flux is spatially variable, the f-wave method is a better formulation for solving hyperbolic conservation laws using wave-propagation form. It is better and more convenient to use f-wave method since the method allows Riemann solver to maintain conservation even if the Roe condition is not satisfies and avoids the implementation of the extra discontinuities from the variable coefficients. In the numerical simulations for nonlinear layered media, we see that in the case where the impedance of the layered media is not constant, the f-wave will reflect when it hits the interface. The constant reflection finally gives rise to an equivalent dispersion which combines the nonlinearity and produces solutions look like and behave similar to solitons.
+In this project, we show that in the case where the flux is spatially variable, the f-wave method is a better formulation for solving hyperbolic conservation laws using wave-propagation form. It is better and more convenient to use f-wave method since the method allows Riemann solver to maintain conservation even if the Roe condition is not satisfied and avoids the implementation of the extra discontinuities from the variable coefficients. In the numerical simulations for nonlinear layered media, we see that in the case where the impedance of the layered media is not constant, the f-wave will reflect when it hits the interface. The constant reflection finally gives rise to an equivalent dispersion which combines the nonlinearity and produces solutions look like and behave similar to solitons.
 %\section{Appendix A: MATLAB functions used and brief implementation explanation}
 %\section{Appendix B: MATLAB codes}
 %\section{Appendix C(optional)} Any algebraically intense calculations.
